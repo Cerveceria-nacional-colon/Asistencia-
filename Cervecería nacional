@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Asistencia QR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --accent: #00e5a0;
+    --accent2: #0077ff;
+    --danger: #ff4757;
+    --text: #e8edf5;
+    --muted: #6b7a99;
+    --border: #1f2e47;
+    --glow: 0 0 20px rgba(0,229,160,0.25);
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘Syne’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+overflow-x: hidden;
+background-image:
+radial-gradient(ellipse 60% 50% at 10% 0%, rgba(0,119,255,0.08) 0%, transparent 60%),
+radial-gradient(ellipse 40% 40% at 90% 100%, rgba(0,229,160,0.06) 0%, transparent 60%);
+}
+
+/* ===== HEADER ===== */
+header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 18px 32px;
+border-bottom: 1px solid var(–border);
+background: rgba(10,14,26,0.8);
+backdrop-filter: blur(12px);
+position: sticky; top: 0; z-index: 100;
+}
+.logo {
+display: flex; align-items: center; gap: 10px;
+font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em;
+}
+.logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(–accent); box-shadow: var(–glow); }
+.header-time {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.85rem; color: var(–muted);
+}
+.header-badge {
+background: rgba(0,229,160,0.1);
+color: var(–accent);
+border: 1px solid rgba(0,229,160,0.3);
+padding: 4px 12px; border-radius: 20px;
+font-size: 0.75rem; font-weight: 700;
+letter-spacing: 0.05em;
+}
+
+/* ===== TABS ===== */
+.tabs {
+display: flex; gap: 4px;
+padding: 20px 32px 0;
+border-bottom: 1px solid var(–border);
+}
+.tab-btn {
+background: none; border: none; cursor: pointer;
+color: var(–muted); font-family: ‘Syne’, sans-serif;
+font-size: 0.9rem; font-weight: 600;
+padding: 10px 20px; border-radius: 8px 8px 0 0;
+transition: all 0.2s;
+border-bottom: 2px solid transparent;
+margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(–text); background: var(–surface2); }
+.tab-btn.active {
+color: var(–accent);
+border-bottom: 2px solid var(–accent);
+background: var(–surface2);
+}
+
+/* ===== MAIN ===== */
+main { max-width: 1100px; margin: 0 auto; padding: 32px; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ===== QR PANEL ===== */
+.qr-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+align-items: start;
+}
+@media (max-width: 760px) { .qr-grid { grid-template-columns: 1fr; } }
+
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 28px;
+}
+.card-title {
+font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+color: var(–muted); text-transform: uppercase; margin-bottom: 20px;
+}
+
+.form-group { margin-bottom: 16px; }
+label {
+display: block; font-size: 0.8rem; font-weight: 600;
+color: var(–muted); margin-bottom: 6px; letter-spacing: 0.04em;
+}
+input, select {
+width: 100%; background: var(–surface2);
+border: 1px solid var(–border); border-radius: 8px;
+padding: 10px 14px; color: var(–text);
+font-family: ‘Syne’, sans-serif; font-size: 0.9rem;
+transition: border-color 0.2s;
+}
+input:focus, select:focus {
+outline: none; border-color: var(–accent);
+box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
+}
+select option { background: var(–surface2); }
+
+.btn {
+width: 100%; padding: 12px; border: none; border-radius: 10px;
+font-family: ‘Syne’, sans-serif; font-size: 0.95rem; font-weight: 700;
+cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
+}
+.btn-primary {
+background: var(–accent); color: #0a0e1a;
+}
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(–glow); }
+.btn-secondary {
+background: var(–surface2); color: var(–text);
+border: 1px solid var(–border); margin-top: 10px;
+}
+.btn-secondary:hover { border-color: var(–accent); color: var(–accent); }
+.btn-danger {
+background: rgba(255,71,87,0.1); color: var(–danger);
+border: 1px solid rgba(255,71,87,0.3); margin-top: 8px;
+}
+.btn-danger:hover { background: rgba(255,71,87,0.2); }
+
+/* QR Display */
+.qr-display {
+display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.qr-wrapper {
+background: white; padding: 20px; border-radius: 12px;
+display: inline-block;
+box-shadow: 0 0 40px rgba(0,229,160,0.15);
+}
+#qrcode canvas, #qrcode img { display: block; }
+.qr-placeholder {
+width: 200px; height: 200px;
+background: var(–surface2); border: 2px dashed var(–border);
+border-radius: 8px;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center; gap: 8px;
+color: var(–muted); font-size: 0.8rem; text-align: center;
+}
+.qr-placeholder svg { opacity: 0.3; }
+.qr-label {
+font-family: ‘Space Mono’, monospace;
+font-size: 0.75rem; color: var(–muted); text-align: center;
+}
+.qr-info {
+background: var(–surface2); border-radius: 8px; padding: 12px 16px;
+font-size: 0.8rem; color: var(–muted); width: 100%;
+border: 1px solid var(–border);
+}
+.qr-info strong { color: var(–accent); }
+
+/* ===== SCANNER PANEL ===== */
+.scanner-card {
+max-width: 520px; margin: 0 auto;
+}
+.scanner-box {
+position: relative;
+background: #000;
+border-radius: 12px; overflow: hidden;
+aspect-ratio: 1;
+border: 2px solid var(–border);
+}
+#preview {
+width: 100%; height: 100%;
+object-fit: cover; display: block;
+}
+.scan-overlay {
+position: absolute; inset: 0;
+display: flex; align-items: center; justify-content: center;
+pointer-events: none;
+}
+.scan-frame {
+width: 200px; height: 200px;
+border: 2px solid var(–accent);
+border-radius: 8px;
+box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
+position: relative;
+}
+.scan-line {
+position: absolute; left: 0; right: 0; height: 2px;
+background: linear-gradient(90deg, transparent, var(–accent), transparent);
+animation: scan 2s linear infinite;
+}
+@keyframes scan {
+0% { top: 0; } 100% { top: 100%; }
+}
+.corner {
+position: absolute; width: 16px; height: 16px;
+border-color: var(–accent); border-style: solid;
+}
+.corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
+.corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; }
+.corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; }
+.corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+
+.scanner-placeholder {
+aspect-ratio: 1; max-width: 520px; margin: 0 auto;
+background: var(–surface2); border: 2px dashed var(–border);
+border-radius: 12px;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center; gap: 12px;
+color: var(–muted);
+}
+.scanner-placeholder svg { opacity: 0.25; }
+
+.status-banner {
+margin-top: 16px; padding: 14px 20px;
+border-radius: 10px; font-weight: 600; text-align: center;
+font-size: 0.9rem; transition: all 0.3s;
+}
+.status-idle { background: var(–surface2); color: var(–muted); border: 1px solid var(–border); }
+.status-success { background: rgba(0,229,160,0.1); color: var(–accent); border: 1px solid rgba(0,229,160,0.3); }
+.status-error { background: rgba(255,71,87,0.1); color: var(–danger); border: 1px solid rgba(255,71,87,0.3); }
+
+/* Manual register */
+.divider {
+display: flex; align-items: center; gap: 12px;
+color: var(–muted); font-size: 0.8rem; margin: 20px 0;
+}
+.divider::before, .divider::after {
+content: ‘’; flex: 1; height: 1px; background: var(–border);
+}
+
+/* ===== RECORDS PANEL ===== */
+.records-header {
+display: flex; justify-content: space-between; align-items: center;
+margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.records-header h2 { font-size: 1.4rem; font-weight: 800; }
+.stats-row {
+display: grid; grid-template-columns: repeat(3, 1fr);
+gap: 12px; margin-bottom: 24px;
+}
+@media (max-width: 500px) { .stats-row { grid-template-columns: 1fr; } }
+.stat-card {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 12px; padding: 18px;
+}
+.stat-label { font-size: 0.7rem; color: var(–muted); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.stat-value { font-size: 1.8rem; font-weight: 800; margin-top: 4px; }
+.stat-value.green { color: var(–accent); }
+.stat-value.blue { color: var(–accent2); }
+.stat-value.white { color: var(–text); }
+
+.table-wrapper { overflow-x: auto; }
+table {
+width: 100%; border-collapse: collapse;
+font-size: 0.85rem;
+}
+thead th {
+text-align: left; padding: 10px 14px;
+font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+text-transform: uppercase; color: var(–muted);
+border-bottom: 1px solid var(–border);
+}
+tbody tr {
+border-bottom: 1px solid rgba(31,46,71,0.5);
+transition: background 0.15s;
+}
+tbody tr:hover { background: var(–surface2); }
+tbody td { padding: 12px 14px; }
+.badge {
+display: inline-block; padding: 3px 10px; border-radius: 20px;
+font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
+}
+.badge-entrada { background: rgba(0,229,160,0.1); color: var(–accent); border: 1px solid rgba(0,229,160,0.2); }
+.badge-salida { background: rgba(0,119,255,0.1); color: var(–accent2); border: 1px solid rgba(0,119,255,0.2); }
+.empty-state {
+text-align: center; padding: 48px; color: var(–muted);
+}
+.empty-state svg { opacity: 0.2; margin-bottom: 12px; }
+
+.filter-row {
+display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-row input, .filter-row select {
+flex: 1; min-width: 140px;
+}
+
+/* ===== TOAST ===== */
+#toast {
+position: fixed; bottom: 24px; right: 24px;
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 10px; padding: 14px 20px;
+font-size: 0.85rem; font-weight: 600;
+box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+transform: translateY(80px); opacity: 0;
+transition: all 0.3s; z-index: 999;
+max-width: 300px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.success { border-color: rgba(0,229,160,0.4); color: var(–accent); }
+#toast.error { border-color: rgba(255,71,87,0.4); color: var(–danger); }
+
+/* ===== EMPLOYEES PANEL ===== */
+.emp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.emp-card {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 12px; padding: 18px;
+display: flex; align-items: center; gap: 12px;
+}
+.emp-avatar {
+width: 42px; height: 42px; border-radius: 50%;
+background: linear-gradient(135deg, var(–accent2), var(–accent));
+display: flex; align-items: center; justify-content: center;
+font-weight: 800; font-size: 1rem; color: #0a0e1a; flex-shrink: 0;
+}
+.emp-name { font-weight: 700; font-size: 0.9rem; }
+.emp-id { font-size: 0.72rem; color: var(–muted); font-family: ‘Space Mono’, monospace; }
+.emp-dept { font-size: 0.72rem; color: var(–muted); margin-top: 2px; }
+
+.add-emp-form {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 12px; padding: 20px; margin-bottom: 20px;
+}
+.add-emp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 500px) { .add-emp-grid { grid-template-columns: 1fr; } }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Asistencia QR
+  </div>
+  <div class="header-time" id="headerClock">—</div>
+  <div class="header-badge">ACTIVO</div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('qr')">📲 Generar QR</button>
+  <button class="tab-btn" onclick="switchTab('scanner')">🔍 Escanear</button>
+  <button class="tab-btn" onclick="switchTab('records')">📋 Registros</button>
+  <button class="tab-btn" onclick="switchTab('employees')">👥 Colaboradores</button>
+</div>
+
+<main>
+
+  <!-- ===== TAB: GENERAR QR ===== -->
+
+  <div id="panel-qr" class="panel active">
+    <div class="qr-grid">
+
+```
+  <div class="card">
+    <div class="card-title">Configurar QR de Sesión</div>
+    <div class="form-group">
+      <label>Evento / Sesión</label>
+      <input type="text" id="qrSesion" placeholder="Ej: Reunión general, Turno mañana..." value="Jornada laboral">
+    </div>
+    <div class="form-group">
+      <label>Tipo de registro</label>
+      <select id="qrTipo">
+        <option value="entrada">Entrada</option>
+        <option value="salida">Salida</option>
+        <option value="ambos">Entrada y Salida (automático)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Válido por (minutos)</label>
+      <input type="number" id="qrExpiry" value="60" min="1" max="1440">
+    </div>
+    <button class="btn btn-primary" onclick="generateQR()">⚡ Generar Código QR</button>
+    <button class="btn btn-secondary" onclick="downloadQR()">⬇ Descargar QR</button>
+    <button class="btn btn-danger" onclick="clearQR()">🗑 Limpiar</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Código QR Generado</div>
+    <div class="qr-display">
+      <div id="qrPlaceholder" class="qr-placeholder" style="width:220px;height:220px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/>
+        </svg>
+        <span>Configura y genera<br>el código QR</span>
+      </div>
+      <div id="qrcode" style="display:none;"></div>
+      <div class="qr-label" id="qrLabel"></div>
+      <div class="qr-info" id="qrInfo" style="display:none;"></div>
+    </div>
+  </div>
+
+</div>
+```
+
+  </div>
+
+  <!-- ===== TAB: SCANNER ===== -->
+
+  <div id="panel-scanner" class="panel">
+    <div class="scanner-card">
+      <div class="card">
+        <div class="card-title">Escanear QR con Cámara</div>
+
+```
+    <div id="scannerPlaceholder" class="scanner-placeholder">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+        <rect x="7" y="7" width="10" height="10" rx="1"/>
+      </svg>
+      <span>La cámara aparecerá aquí</span>
+    </div>
+
+    <div id="scannerBox" class="scanner-box" style="display:none;">
+      <video id="preview" autoplay muted playsinline></video>
+      <div class="scan-overlay">
+        <div class="scan-frame">
+          <div class="scan-line"></div>
+          <div class="corner tl"></div><div class="corner tr"></div>
+          <div class="corner bl"></div><div class="corner br"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="scanStatus" class="status-banner status-idle">
+      Presiona "Iniciar Cámara" para escanear
+    </div>
+
+    <button class="btn btn-primary" id="btnStartScan" onclick="startScan()" style="margin-top:14px;">
+      📷 Iniciar Cámara
+    </button>
+    <button class="btn btn-secondary" id="btnStopScan" onclick="stopScan()" style="display:none;">
+      ⏹ Detener Cámara
+    </button>
+
+    <div class="divider">o registro manual</div>
+
+    <div class="form-group">
+      <label>ID o Nombre del colaborador</label>
+      <input type="text" id="manualEmp" placeholder="Buscar colaborador...">
+      <div id="empSuggest" style="margin-top:6px;"></div>
+    </div>
+    <div class="form-group">
+      <label>Tipo</label>
+      <select id="manualTipo">
+        <option value="entrada">Entrada</option>
+        <option value="salida">Salida</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="manualRegister()">✅ Registrar Manualmente</button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ===== TAB: REGISTROS ===== -->
+
+  <div id="panel-records" class="panel">
+    <div class="records-header">
+      <h2>Registros de Asistencia</h2>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary" style="width:auto;padding:8px 16px;" onclick="exportCSV()">⬇ Exportar CSV</button>
+        <button class="btn btn-danger" style="width:auto;padding:8px 16px;" onclick="clearRecords()">🗑 Limpiar</button>
+      </div>
+    </div>
+
+```
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-label">Total Registros</div>
+    <div class="stat-value white" id="statTotal">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Entradas Hoy</div>
+    <div class="stat-value green" id="statEntradas">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Salidas Hoy</div>
+    <div class="stat-value blue" id="statSalidas">0</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="filter-row">
+    <input type="text" id="filterText" placeholder="🔎 Buscar colaborador..." oninput="renderTable()">
+    <input type="date" id="filterDate" oninput="renderTable()">
+    <select id="filterType" onchange="renderTable()">
+      <option value="">Todos los tipos</option>
+      <option value="entrada">Entrada</option>
+      <option value="salida">Salida</option>
+    </select>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Colaborador</th>
+          <th>ID</th>
+          <th>Departamento</th>
+          <th>Tipo</th>
+          <th>Sesión</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+        </tr>
+      </thead>
+      <tbody id="recordsBody">
+        <tr><td colspan="8">
+          <div class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 8px;">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            No hay registros aún
+          </div>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ===== TAB: COLABORADORES ===== -->
+
+  <div id="panel-employees" class="panel">
+    <div style="margin-bottom:20px;">
+      <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:4px;">Colaboradores Registrados</h2>
+      <p style="color:var(--muted);font-size:0.85rem;">Gestiona el directorio de empleados</p>
+    </div>
+
+```
+<div class="add-emp-form">
+  <div class="card-title">Agregar Nuevo Colaborador</div>
+  <div class="add-emp-grid">
+    <div class="form-group" style="margin-bottom:0;">
+      <label>Nombre completo</label>
+      <input type="text" id="newEmpName" placeholder="Ej: María González">
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label>ID Empleado</label>
+      <input type="text" id="newEmpId" placeholder="Ej: EMP-001">
+    </div>
+    <div class="form-group" style="margin-bottom:0;margin-top:12px;">
+      <label>Departamento</label>
+      <input type="text" id="newEmpDept" placeholder="Ej: Recursos Humanos">
+    </div>
+    <div class="form-group" style="margin-bottom:0;margin-top:12px;">
+      <label>Cargo</label>
+      <input type="text" id="newEmpRole" placeholder="Ej: Analista">
+    </div>
+  </div>
+  <button class="btn btn-primary" style="margin-top:16px;" onclick="addEmployee()">➕ Agregar Colaborador</button>
+</div>
+
+<div class="emp-grid" id="empGrid"></div>
+```
+
+  </div>
+
+</main>
+
+<!-- Toast -->
+
+<div id="toast"></div>
+
+<!-- jsQR for QR scanning -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
+
+<script>
+// ===== STATE =====
+let employees = JSON.parse(localStorage.getItem('qr_employees') || '[]');
+let records = JSON.parse(localStorage.getItem('qr_records') || '[]');
+let currentQRData = null;
+let scanStream = null;
+let scanInterval = null;
+
+// Default employees
+if (employees.length === 0) {
+  employees = [
+    { id: 'EMP-001', name: 'Carlos Martínez', dept: 'Tecnología', role: 'Desarrollador' },
+    { id: 'EMP-002', name: 'Ana López', dept: 'RRHH', role: 'Coordinadora' },
+    { id: 'EMP-003', name: 'Luis Rodríguez', dept: 'Ventas', role: 'Asesor' },
+    { id: 'EMP-004', name: 'María García', dept: 'Finanzas', role: 'Analista' },
+  ];
+  saveEmployees();
+}
+
+function saveEmployees() { localStorage.setItem('qr_employees', JSON.stringify(employees)); }
+function saveRecords() { localStorage.setItem('qr_records', JSON.stringify(records)); }
+
+// ===== CLOCK =====
+function updateClock() {
+  const now = new Date();
+  document.getElementById('headerClock').textContent =
+    now.toLocaleDateString('es-MX', {weekday:'short',day:'2-digit',month:'short'}) + ' · ' +
+    now.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ===== TABS =====
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'records') { renderTable(); updateStats(); }
+  if (tab === 'employees') renderEmployees();
+  if (tab !== 'scanner') stopScan();
+}
+
+// ===== TOAST =====
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ===== QR GENERATION =====
+function generateQR() {
+  const sesion = document.getElementById('qrSesion').value.trim() || 'Sesión';
+  const tipo = document.getElementById('qrTipo').value;
+  const expiry = parseInt(document.getElementById('qrExpiry').value) || 60;
+  const now = new Date();
+  const exp = new Date(now.getTime() + expiry * 60000);
+
+  currentQRData = {
+    sesion, tipo,
+    created: now.toISOString(),
+    expires: exp.toISOString(),
+    code: 'QR-' + Date.now()
+  };
+
+  const payload = JSON.stringify(currentQRData);
+  document.getElementById('qrcode').innerHTML = '';
+
+  new QRCode(document.getElementById('qrcode'), {
+    text: payload,
+    width: 220, height: 220,
+    colorDark: '#000000', colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  document.getElementById('qrPlaceholder').style.display = 'none';
+  document.getElementById('qrcode').style.display = 'block';
+  document.getElementById('qrLabel').textContent = sesion + ' · ' + tipo.toUpperCase();
+
+  document.getElementById('qrInfo').style.display = 'block';
+  document.getElementById('qrInfo').innerHTML =
+    `<strong>Sesión:</strong> ${sesion}<br>
+     <strong>Tipo:</strong> ${tipo}<br>
+     <strong>Generado:</strong> ${now.toLocaleTimeString('es-MX')}<br>
+     <strong>Expira:</strong> ${exp.toLocaleTimeString('es-MX')} (${expiry} min)`;
+
+  showToast('✅ QR generado correctamente');
+}
+
+function clearQR() {
+  currentQRData = null;
+  document.getElementById('qrcode').innerHTML = '';
+  document.getElementById('qrcode').style.display = 'none';
+  document.getElementById('qrPlaceholder').style.display = 'flex';
+  document.getElementById('qrLabel').textContent = '';
+  document.getElementById('qrInfo').style.display = 'none';
+}
+
+function downloadQR() {
+  const canvas = document.querySelector('#qrcode canvas');
+  if (!canvas) { showToast('Primero genera un QR', 'error'); return; }
+  const link = document.createElement('a');
+  link.download = 'asistencia-qr.png';
+  link.href = canvas.toDataURL();
+  link.click();
+  showToast('⬇ QR descargado');
+}
+
+// ===== SCANNER =====
+async function startScan() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    scanStream = stream;
+    const video = document.getElementById('preview');
+    video.srcObject = stream;
+    document.getElementById('scannerPlaceholder').style.display = 'none';
+    document.getElementById('scannerBox').style.display = 'block';
+    document.getElementById('btnStartScan').style.display = 'none';
+    document.getElementById('btnStopScan').style.display = 'block';
+    setStatus('Apunta el QR al recuadro...', 'idle');
+    scanInterval = setInterval(decodeFrame, 300);
+  } catch (e) {
+    showToast('No se pudo acceder a la cámara', 'error');
+    setStatus('Error al acceder a la cámara', 'error');
+  }
+}
+
+function stopScan() {
+  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+  document.getElementById('scannerPlaceholder').style.display = 'flex';
+  document.getElementById('scannerBox').style.display = 'none';
+  document.getElementById('btnStartScan').style.display = 'block';
+  document.getElementById('btnStopScan').style.display = 'none';
+  setStatus('Presiona "Iniciar Cámara" para escanear', 'idle');
+}
+
+function decodeFrame() {
+  const video = document.getElementById('preview');
+  if (!video || video.readyState < 2) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(imageData.data, imageData.width, imageData.height);
+  if (code) {
+    try {
+      const data = JSON.parse(code.data);
+      if (data.code && data.sesion) {
+        processQRScan(data);
+        stopScan();
+      }
+    } catch (e) {
+      // not our QR
+    }
+  }
+}
+
+function processQRScan(qrData) {
+  const now = new Date();
+  if (new Date(qrData.expires) < now) {
+    setStatus('❌ Este QR ha expirado', 'error');
+    showToast('QR expirado', 'error');
+    return;
+  }
+  // Ask who is scanning (simple prompt for demo)
+  const name = prompt('¿Cuál es tu nombre o ID de colaborador?', '');
+  if (!name) return;
+
+  const emp = employees.find(e =>
+    e.name.toLowerCase().includes(name.toLowerCase()) ||
+    e.id.toLowerCase() === name.toLowerCase()
+  );
+
+  let tipo = qrData.tipo;
+  if (tipo === 'ambos') {
+    // Check last record for this person today
+    const today = now.toDateString();
+    const todayRecords = records.filter(r =>
+      r.empName.toLowerCase().includes(name.toLowerCase()) &&
+      new Date(r.timestamp).toDateString() === today
+    );
+    const lastType = todayRecords.length > 0 ? todayRecords[todayRecords.length - 1].tipo : null;
+    tipo = lastType === 'entrada' ? 'salida' : 'entrada';
+  }
+
+  const record = {
+    id: Date.now(),
+    empId: emp ? emp.id : 'N/A',
+    empName: emp ? emp.name : name,
+    dept: emp ? emp.dept : '—',
+    tipo,
+    sesion: qrData.sesion,
+    timestamp: now.toISOString(),
+    method: 'qr'
+  };
+
+  records.unshift(record);
+  saveRecords();
+
+  setStatus(`✅ ${record.tipo.toUpperCase()} registrada: ${record.empName}`, 'success');
+  showToast(`✅ ${record.tipo.toUpperCase()} registrada para ${record.empName}`);
+  updateStats();
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('scanStatus');
+  el.textContent = msg;
+  el.className = 'status-banner status-' + type;
+}
+
+// ===== MANUAL REGISTER =====
+document.getElementById('manualEmp').addEventListener('input', function() {
+  const val = this.value.toLowerCase();
+  const box = document.getElementById('empSuggest');
+  if (val.length < 1) { box.innerHTML = ''; return; }
+  const matches = employees.filter(e =>
+    e.name.toLowerCase().includes(val) || e.id.toLowerCase().includes(val)
+  ).slice(0, 4);
+  box.innerHTML = matches.map(e =>
+    `<div onclick="selectEmp('${e.name}')" style="cursor:pointer;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;margin-bottom:4px;font-size:0.85rem;">
+      <strong>${e.name}</strong> <span style="color:var(--muted);">${e.id} · ${e.dept}</span>
+    </div>`
+  ).join('');
+});
+
+function selectEmp(name) {
+  document.getElementById('manualEmp').value = name;
+  document.getElementById('empSuggest').innerHTML = '';
+}
+
+function manualRegister() {
+  const name = document.getElementById('manualEmp').value.trim();
+  const tipo = document.getElementById('manualTipo').value;
+  if (!name) { showToast('Ingresa el nombre del colaborador', 'error'); return; }
+
+  const emp = employees.find(e =>
+    e.name.toLowerCase().includes(name.toLowerCase()) ||
+    e.id.toLowerCase() === name.toLowerCase()
+  );
+
+  const record = {
+    id: Date.now(),
+    empId: emp ? emp.id : 'N/A',
+    empName: emp ? emp.name : name,
+    dept: emp ? emp.dept : '—',
+    tipo,
+    sesion: 'Registro manual',
+    timestamp: new Date().toISOString(),
+    method: 'manual'
+  };
+
+  records.unshift(record);
+  saveRecords();
+  document.getElementById('manualEmp').value = '';
+  showToast(`✅ ${tipo.toUpperCase()} registrada para ${record.empName}`);
+  updateStats();
+}
+
+// ===== RECORDS TABLE =====
+function renderTable() {
+  const filter = document.getElementById('filterText').value.toLowerCase();
+  const filterDate = document.getElementById('filterDate').value;
+  const filterType = document.getElementById('filterType').value;
+
+  let filtered = records.filter(r => {
+    const matchText = !filter || r.empName.toLowerCase().includes(filter) || r.empId.toLowerCase().includes(filter);
+    const matchDate = !filterDate || r.timestamp.startsWith(filterDate);
+    const matchType = !filterType || r.tipo === filterType;
+    return matchText && matchDate && matchType;
+  });
+
+  const tbody = document.getElementById('recordsBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">No hay registros que coincidan</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((r, i) => {
+    const d = new Date(r.timestamp);
+    return `<tr>
+      <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:0.75rem;">${i+1}</td>
+      <td><strong>${r.empName}</strong></td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--muted);">${r.empId}</td>
+      <td style="color:var(--muted);font-size:0.82rem;">${r.dept}</td>
+      <td><span class="badge badge-${r.tipo}">${r.tipo.toUpperCase()}</span></td>
+      <td style="font-size:0.8rem;color:var(--muted);">${r.sesion}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.78rem;">${d.toLocaleDateString('es-MX')}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:0.78rem;">${d.toLocaleTimeString('es-MX')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function updateStats() {
+  const today = new Date().toDateString();
+  const todayRecs = records.filter(r => new Date(r.timestamp).toDateString() === today);
+  document.getElementById('statTotal').textContent = records.length;
+  document.getElementById('statEntradas').textContent = todayRecs.filter(r => r.tipo === 'entrada').length;
+  document.getElementById('statSalidas').textContent = todayRecs.filter(r => r.tipo === 'salida').length;
+}
+
+function clearRecords() {
+  if (!confirm('¿Seguro que deseas borrar todos los registros?')) return;
+  records = []; saveRecords(); renderTable(); updateStats();
+  showToast('Registros eliminados');
+}
+
+function exportCSV() {
+  if (records.length === 0) { showToast('No hay registros para exportar', 'error'); return; }
+  const headers = ['Nombre', 'ID', 'Departamento', 'Tipo', 'Sesión', 'Fecha', 'Hora', 'Método'];
+  const rows = records.map(r => {
+    const d = new Date(r.timestamp);
+    return [r.empName, r.empId, r.dept, r.tipo, r.sesion,
+      d.toLocaleDateString('es-MX'), d.toLocaleTimeString('es-MX'), r.method].join(',');
+  });
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'asistencia.csv'; a.click();
+  showToast('⬇ CSV exportado');
+}
+
+// ===== EMPLOYEES =====
+function renderEmployees() {
+  const grid = document.getElementById('empGrid');
+  if (employees.length === 0) {
+    grid.innerHTML = '<p style="color:var(--muted);">Sin colaboradores registrados.</p>';
+    return;
+  }
+  grid.innerHTML = employees.map((e, i) =>
+    `<div class="emp-card">
+      <div class="emp-avatar">${e.name.charAt(0)}</div>
+      <div>
+        <div class="emp-name">${e.name}</div>
+        <div class="emp-id">${e.id}</div>
+        <div class="emp-dept">${e.dept} · ${e.role}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function addEmployee() {
+  const name = document.getElementById('newEmpName').value.trim();
+  const id = document.getElementById('newEmpId').value.trim();
+  const dept = document.getElementById('newEmpDept').value.trim();
+  const role = document.getElementById('newEmpRole').value.trim();
+  if (!name || !id) { showToast('Nombre e ID son requeridos', 'error'); return; }
+  if (employees.find(e => e.id === id)) { showToast('Ya existe un colaborador con ese ID', 'error'); return; }
+  employees.push({ id, name, dept: dept || '—', role: role || '—' });
+  saveEmployees(); renderEmployees();
+  document.getElementById('newEmpName').value = '';
+  document.getElementById('newEmpId').value = '';
+  document.getElementById('newEmpDept').value = '';
+  document.getElementById('newEmpRole').value = '';
+  showToast(`✅ ${name} agregado`);
+}
+
+// Init
+updateStats();
+</script>
+
+</body>
+</html>
