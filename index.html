@@ -4,345 +4,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Asistencia QR</title>
+<title>Asistencia QR</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --accent: #00e5a0;
-    --accent2: #0077ff;
-    --danger: #ff4757;
-    --text: #e8edf5;
-    --muted: #6b7a99;
-    --border: #1f2e47;
-    --glow: 0 0 20px rgba(0,229,160,0.25);
-  }
-
-- { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-font-family: ‘Syne’, sans-serif;
-background: var(–bg);
-color: var(–text);
-min-height: 100vh;
-overflow-x: hidden;
-background-image:
-radial-gradient(ellipse 60% 50% at 10% 0%, rgba(0,119,255,0.08) 0%, transparent 60%),
-radial-gradient(ellipse 40% 40% at 90% 100%, rgba(0,229,160,0.06) 0%, transparent 60%);
+:root {
+  --bg: #f5f4f0;
+  --white: #ffffff;
+  --ink: #1a1a1a;
+  --ink2: #666;
+  --border: #e0ddd8;
+  --accent: #2563eb;
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --yellow: #d97706;
+  --yellow-light: #fffbeb;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.06);
 }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
 
-/* ===== HEADER ===== */
 header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 18px 32px;
-border-bottom: 1px solid var(–border);
-background: rgba(10,14,26,0.8);
-backdrop-filter: blur(12px);
-position: sticky; top: 0; z-index: 100;
+background:var(–white); border-bottom:1px solid var(–border);
+padding:0 20px; display:flex; align-items:center;
+justify-content:space-between; height:60px;
+position:sticky; top:0; z-index:100;
 }
-.logo {
-display: flex; align-items: center; gap: 10px;
-font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em;
-}
-.logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(–accent); box-shadow: var(–glow); }
-.header-time {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.85rem; color: var(–muted);
-}
-.header-badge {
-background: rgba(0,229,160,0.1);
-color: var(–accent);
-border: 1px solid rgba(0,229,160,0.3);
-padding: 4px 12px; border-radius: 20px;
-font-size: 0.75rem; font-weight: 700;
-letter-spacing: 0.05em;
+.logo { display:flex; align-items:center; gap:8px; font-weight:700; font-size:1rem; }
+.logo-icon { width:32px; height:32px; background:var(–accent); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+#clock { font-family:‘DM Mono’,monospace; font-size:0.78rem; color:var(–ink2); background:var(–bg); padding:4px 10px; border-radius:6px; }
+
+nav { background:var(–white); border-bottom:1px solid var(–border); display:flex; padding:0 20px; overflow-x:auto; }
+nav::-webkit-scrollbar { display:none; }
+.tab { background:none; border:none; cursor:pointer; font-family:‘DM Sans’,sans-serif; font-size:0.875rem; font-weight:500; color:var(–ink2); padding:14px 16px; border-bottom:2px solid transparent; white-space:nowrap; transition:all 0.15s; }
+.tab:hover { color:var(–ink); }
+.tab.active { color:var(–accent); border-bottom-color:var(–accent); font-weight:600; }
+
+main { max-width:860px; margin:0 auto; padding:24px 16px; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+.card { background:var(–white); border:1px solid var(–border); border-radius:14px; padding:22px; box-shadow:var(–shadow); }
+.card+.card { margin-top:14px; }
+.card-label { font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(–ink2); margin-bottom:16px; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+@media(max-width:600px){ .two-col{grid-template-columns:1fr;} }
+
+.field { margin-bottom:12px; }
+.field label { display:block; font-size:0.8rem; font-weight:600; color:var(–ink2); margin-bottom:5px; }
+.field input, .field select { width:100%; border:1px solid var(–border); border-radius:8px; padding:9px 12px; font-family:‘DM Sans’,sans-serif; font-size:0.9rem; color:var(–ink); background:var(–white); transition:border-color 0.15s,box-shadow 0.15s; }
+.field input:focus, .field select:focus { outline:none; border-color:var(–accent); box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+
+.btn { width:100%; padding:11px 16px; border:none; border-radius:9px; font-family:‘DM Sans’,sans-serif; font-size:0.9rem; font-weight:600; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:6px; }
+.btn+.btn { margin-top:8px; }
+.btn-blue { background:var(–accent); color:#fff; }
+.btn-blue:hover { background:#1d4ed8; transform:translateY(-1px); }
+.btn-outline { background:var(–white); color:var(–ink); border:1px solid var(–border); }
+.btn-outline:hover { border-color:var(–accent); color:var(–accent); }
+.btn-green { background:var(–green); color:#fff; }
+.btn-sm { width:auto; padding:7px 14px; font-size:0.8rem; }
+
+/* QR permanente */
+.qr-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
+.qr-box { background:#fff; padding:16px; border-radius:12px; border:1px solid var(–border); box-shadow:var(–shadow-md); }
+.qr-meta { text-align:center; font-size:0.82rem; color:var(–ink2); line-height:1.7; }
+.qr-meta strong { color:var(–ink); }
+.permanent-badge {
+display:inline-flex; align-items:center; gap:5px;
+background:var(–green-light); color:var(–green);
+border:1px solid #bbf7d0; border-radius:20px;
+padding:4px 12px; font-size:0.75rem; font-weight:700;
 }
 
-/* ===== TABS ===== */
-.tabs {
-display: flex; gap: 4px;
-padding: 20px 32px 0;
-border-bottom: 1px solid var(–border);
-}
-.tab-btn {
-background: none; border: none; cursor: pointer;
-color: var(–muted); font-family: ‘Syne’, sans-serif;
-font-size: 0.9rem; font-weight: 600;
-padding: 10px 20px; border-radius: 8px 8px 0 0;
-transition: all 0.2s;
-border-bottom: 2px solid transparent;
-margin-bottom: -1px;
-}
-.tab-btn:hover { color: var(–text); background: var(–surface2); }
-.tab-btn.active {
-color: var(–accent);
-border-bottom: 2px solid var(–accent);
-background: var(–surface2);
-}
+.horario-info { background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:0.85rem; }
+.horario-info strong { color:var(–accent); }
 
-/* ===== MAIN ===== */
-main { max-width: 1100px; margin: 0 auto; padding: 32px; }
+/* Scanner */
+.scan-wrap { position:relative; border-radius:12px; overflow:hidden; background:#000; aspect-ratio:1; }
+#camPreview { width:100%; height:100%; object-fit:cover; display:block; }
+.scan-ui { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.scan-frame { width:190px; height:190px; border:2px solid #fff; border-radius:10px; box-shadow:0 0 0 9999px rgba(0,0,0,0.45); position:relative; }
+.scan-line { position:absolute; left:8px; right:8px; height:2px; background:linear-gradient(90deg,transparent,var(–accent),transparent); animation:sweep 1.8s ease-in-out infinite; }
+@keyframes sweep { 0%,100%{top:8px;} 50%{top:calc(100% - 10px);} }
+.corner { position:absolute; width:18px; height:18px; border-color:var(–accent); border-style:solid; border-radius:2px; }
+.tl{top:-2px;left:-2px;border-width:3px 0 0 3px;} .tr{top:-2px;right:-2px;border-width:3px 3px 0 0;}
+.bl{bottom:-2px;left:-2px;border-width:0 0 3px 3px;} .br{bottom:-2px;right:-2px;border-width:0 3px 3px 0;}
+.scan-placeholder { aspect-ratio:1; border-radius:12px; border:2px dashed var(–border); background:var(–bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(–ink2); font-size:0.85rem; text-align:center; }
 
-.panel { display: none; }
-.panel.active { display: block; }
+.status-box { padding:12px 16px; border-radius:10px; font-size:0.875rem; font-weight:500; margin-top:14px; text-align:center; }
+.s-idle { background:var(–bg); color:var(–ink2); border:1px solid var(–border); }
+.s-ok   { background:var(–green-light); color:var(–green); border:1px solid #bbf7d0; }
+.s-warn { background:var(–yellow-light); color:var(–yellow); border:1px solid #fde68a; }
+.s-err  { background:var(–red-light); color:var(–red); border:1px solid #fecaca; }
 
-/* ===== QR PANEL ===== */
-.qr-grid {
-display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
-align-items: start;
-}
-@media (max-width: 760px) { .qr-grid { grid-template-columns: 1fr; } }
+/* Modal */
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:200; padding:20px; backdrop-filter:blur(4px); }
+.modal-bg.hidden { display:none; }
+.modal { background:var(–white); border-radius:16px; padding:26px; width:100%; max-width:360px; box-shadow:var(–shadow-md); animation:popIn 0.2s ease; }
+@keyframes popIn { from{transform:scale(0.92);opacity:0;} to{transform:scale(1);opacity:1;} }
+.modal h3 { font-size:1.05rem; font-weight:700; margin-bottom:4px; }
+.modal .sub { font-size:0.82rem; color:var(–ink2); margin-bottom:16px; }
 
-.card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 16px;
-padding: 28px;
-}
-.card-title {
-font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
-color: var(–muted); text-transform: uppercase; margin-bottom: 20px;
-}
+/* Stats */
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
+@media(max-width:460px){ .stats-row{grid-template-columns:1fr 1fr;} }
+.stat { background:var(–white); border:1px solid var(–border); border-radius:12px; padding:16px; box-shadow:var(–shadow); }
+.stat-n { font-size:0.67rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(–ink2); }
+.stat-v { font-size:1.9rem; font-weight:700; margin-top:2px; }
+.c-blue{color:var(–accent);} .c-green{color:var(–green);} .c-yellow{color:var(–yellow);}
 
-.form-group { margin-bottom: 16px; }
-label {
-display: block; font-size: 0.8rem; font-weight: 600;
-color: var(–muted); margin-bottom: 6px; letter-spacing: 0.04em;
-}
-input, select {
-width: 100%; background: var(–surface2);
-border: 1px solid var(–border); border-radius: 8px;
-padding: 10px 14px; color: var(–text);
-font-family: ‘Syne’, sans-serif; font-size: 0.9rem;
-transition: border-color 0.2s;
-}
-input:focus, select:focus {
-outline: none; border-color: var(–accent);
-box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
-}
-select option { background: var(–surface2); }
+/* Table */
+.tbl-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:0.84rem; }
+thead th { text-align:left; padding:9px 12px; font-size:0.67rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(–ink2); border-bottom:2px solid var(–border); }
+tbody tr { border-bottom:1px solid var(–border); transition:background 0.1s; }
+tbody tr:hover { background:var(–bg); }
+tbody td { padding:11px 12px; }
+.empty { text-align:center; padding:40px; color:var(–ink2); font-size:0.875rem; }
 
-.btn {
-width: 100%; padding: 12px; border: none; border-radius: 10px;
-font-family: ‘Syne’, sans-serif; font-size: 0.95rem; font-weight: 700;
-cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
-}
-.btn-primary {
-background: var(–accent); color: #0a0e1a;
-}
-.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(–glow); }
-.btn-secondary {
-background: var(–surface2); color: var(–text);
-border: 1px solid var(–border); margin-top: 10px;
-}
-.btn-secondary:hover { border-color: var(–accent); color: var(–accent); }
-.btn-danger {
-background: rgba(255,71,87,0.1); color: var(–danger);
-border: 1px solid rgba(255,71,87,0.3); margin-top: 8px;
-}
-.btn-danger:hover { background: rgba(255,71,87,0.2); }
+.filters { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.filters input, .filters select { flex:1; min-width:120px; border:1px solid var(–border); border-radius:8px; padding:8px 12px; font-family:‘DM Sans’,sans-serif; font-size:0.85rem; background:var(–white); color:var(–ink); }
+.filters input:focus, .filters select:focus { outline:none; border-color:var(–accent); }
 
-/* QR Display */
-.qr-display {
-display: flex; flex-direction: column; align-items: center; gap: 16px;
-}
-.qr-wrapper {
-background: white; padding: 20px; border-radius: 12px;
-display: inline-block;
-box-shadow: 0 0 40px rgba(0,229,160,0.15);
-}
-#qrcode canvas, #qrcode img { display: block; }
-.qr-placeholder {
-width: 200px; height: 200px;
-background: var(–surface2); border: 2px dashed var(–border);
-border-radius: 8px;
-display: flex; flex-direction: column;
-align-items: center; justify-content: center; gap: 8px;
-color: var(–muted); font-size: 0.8rem; text-align: center;
-}
-.qr-placeholder svg { opacity: 0.3; }
-.qr-label {
-font-family: ‘Space Mono’, monospace;
-font-size: 0.75rem; color: var(–muted); text-align: center;
-}
-.qr-info {
-background: var(–surface2); border-radius: 8px; padding: 12px 16px;
-font-size: 0.8rem; color: var(–muted); width: 100%;
-border: 1px solid var(–border);
-}
-.qr-info strong { color: var(–accent); }
+.pill { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+.pill-green { background:var(–green-light); color:var(–green); border:1px solid #bbf7d0; }
+.pill-yellow { background:var(–yellow-light); color:var(–yellow); border:1px solid #fde68a; }
 
-/* ===== SCANNER PANEL ===== */
-.scanner-card {
-max-width: 520px; margin: 0 auto;
-}
-.scanner-box {
-position: relative;
-background: #000;
-border-radius: 12px; overflow: hidden;
-aspect-ratio: 1;
-border: 2px solid var(–border);
-}
-#preview {
-width: 100%; height: 100%;
-object-fit: cover; display: block;
-}
-.scan-overlay {
-position: absolute; inset: 0;
-display: flex; align-items: center; justify-content: center;
-pointer-events: none;
-}
-.scan-frame {
-width: 200px; height: 200px;
-border: 2px solid var(–accent);
-border-radius: 8px;
-box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
-position: relative;
-}
-.scan-line {
-position: absolute; left: 0; right: 0; height: 2px;
-background: linear-gradient(90deg, transparent, var(–accent), transparent);
-animation: scan 2s linear infinite;
-}
-@keyframes scan {
-0% { top: 0; } 100% { top: 100%; }
-}
-.corner {
-position: absolute; width: 16px; height: 16px;
-border-color: var(–accent); border-style: solid;
-}
-.corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
-.corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; }
-.corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; }
-.corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+/* Employees */
+.emp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; }
+.emp-card { background:var(–white); border:1px solid var(–border); border-radius:12px; padding:15px; display:flex; align-items:center; gap:11px; box-shadow:var(–shadow); }
+.avatar { width:38px; height:38px; border-radius:50%; background:#eff6ff; color:var(–accent); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.95rem; flex-shrink:0; }
+.emp-name { font-weight:600; font-size:0.875rem; }
+.emp-sub { font-size:0.73rem; color:var(–ink2); font-family:‘DM Mono’,monospace; }
 
-.scanner-placeholder {
-aspect-ratio: 1; max-width: 520px; margin: 0 auto;
-background: var(–surface2); border: 2px dashed var(–border);
-border-radius: 12px;
-display: flex; flex-direction: column;
-align-items: center; justify-content: center; gap: 12px;
-color: var(–muted);
-}
-.scanner-placeholder svg { opacity: 0.25; }
-
-.status-banner {
-margin-top: 16px; padding: 14px 20px;
-border-radius: 10px; font-weight: 600; text-align: center;
-font-size: 0.9rem; transition: all 0.3s;
-}
-.status-idle { background: var(–surface2); color: var(–muted); border: 1px solid var(–border); }
-.status-success { background: rgba(0,229,160,0.1); color: var(–accent); border: 1px solid rgba(0,229,160,0.3); }
-.status-error { background: rgba(255,71,87,0.1); color: var(–danger); border: 1px solid rgba(255,71,87,0.3); }
-
-/* Manual register */
-.divider {
-display: flex; align-items: center; gap: 12px;
-color: var(–muted); font-size: 0.8rem; margin: 20px 0;
-}
-.divider::before, .divider::after {
-content: ‘’; flex: 1; height: 1px; background: var(–border);
-}
-
-/* ===== RECORDS PANEL ===== */
-.records-header {
-display: flex; justify-content: space-between; align-items: center;
-margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
-}
-.records-header h2 { font-size: 1.4rem; font-weight: 800; }
-.stats-row {
-display: grid; grid-template-columns: repeat(3, 1fr);
-gap: 12px; margin-bottom: 24px;
-}
-@media (max-width: 500px) { .stats-row { grid-template-columns: 1fr; } }
-.stat-card {
-background: var(–surface); border: 1px solid var(–border);
-border-radius: 12px; padding: 18px;
-}
-.stat-label { font-size: 0.7rem; color: var(–muted); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-.stat-value { font-size: 1.8rem; font-weight: 800; margin-top: 4px; }
-.stat-value.green { color: var(–accent); }
-.stat-value.blue { color: var(–accent2); }
-.stat-value.white { color: var(–text); }
-
-.table-wrapper { overflow-x: auto; }
-table {
-width: 100%; border-collapse: collapse;
-font-size: 0.85rem;
-}
-thead th {
-text-align: left; padding: 10px 14px;
-font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
-text-transform: uppercase; color: var(–muted);
-border-bottom: 1px solid var(–border);
-}
-tbody tr {
-border-bottom: 1px solid rgba(31,46,71,0.5);
-transition: background 0.15s;
-}
-tbody tr:hover { background: var(–surface2); }
-tbody td { padding: 12px 14px; }
-.badge {
-display: inline-block; padding: 3px 10px; border-radius: 20px;
-font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;
-}
-.badge-entrada { background: rgba(0,229,160,0.1); color: var(–accent); border: 1px solid rgba(0,229,160,0.2); }
-.badge-salida { background: rgba(0,119,255,0.1); color: var(–accent2); border: 1px solid rgba(0,119,255,0.2); }
-.empty-state {
-text-align: center; padding: 48px; color: var(–muted);
-}
-.empty-state svg { opacity: 0.2; margin-bottom: 12px; }
-
-.filter-row {
-display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
-}
-.filter-row input, .filter-row select {
-flex: 1; min-width: 140px;
-}
-
-/* ===== TOAST ===== */
-#toast {
-position: fixed; bottom: 24px; right: 24px;
-background: var(–surface); border: 1px solid var(–border);
-border-radius: 10px; padding: 14px 20px;
-font-size: 0.85rem; font-weight: 600;
-box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-transform: translateY(80px); opacity: 0;
-transition: all 0.3s; z-index: 999;
-max-width: 300px;
-}
-#toast.show { transform: translateY(0); opacity: 1; }
-#toast.success { border-color: rgba(0,229,160,0.4); color: var(–accent); }
-#toast.error { border-color: rgba(255,71,87,0.4); color: var(–danger); }
-
-/* ===== EMPLOYEES PANEL ===== */
-.emp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-.emp-card {
-background: var(–surface); border: 1px solid var(–border);
-border-radius: 12px; padding: 18px;
-display: flex; align-items: center; gap: 12px;
-}
-.emp-avatar {
-width: 42px; height: 42px; border-radius: 50%;
-background: linear-gradient(135deg, var(–accent2), var(–accent));
-display: flex; align-items: center; justify-content: center;
-font-weight: 800; font-size: 1rem; color: #0a0e1a; flex-shrink: 0;
-}
-.emp-name { font-weight: 700; font-size: 0.9rem; }
-.emp-id { font-size: 0.72rem; color: var(–muted); font-family: ‘Space Mono’, monospace; }
-.emp-dept { font-size: 0.72rem; color: var(–muted); margin-top: 2px; }
-
-.add-emp-form {
-background: var(–surface); border: 1px solid var(–border);
-border-radius: 12px; padding: 20px; margin-bottom: 20px;
-}
-.add-emp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 500px) { .add-emp-grid { grid-template-columns: 1fr; } }
+#toast { position:fixed; bottom:20px; right:20px; background:var(–ink); color:#fff; padding:12px 18px; border-radius:10px; font-size:0.85rem; font-weight:500; box-shadow:var(–shadow-md); transform:translateY(60px); opacity:0; transition:all 0.25s; z-index:999; max-width:280px; }
+#toast.show { transform:translateY(0); opacity:1; }
+#toast.ok { background:var(–green); }
+#toast.fail { background:var(–red); }
+#toast.warn { background:var(–yellow); color:#fff; }
 </style>
 
 </head>
@@ -350,604 +153,580 @@ border-radius: 12px; padding: 20px; margin-bottom: 20px;
 
 <header>
   <div class="logo">
-    <div class="logo-dot"></div>
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM17 17h3v3h-3z"/>
+      </svg>
+    </div>
     Asistencia QR
   </div>
-  <div class="header-time" id="headerClock">—</div>
-  <div class="header-badge">ACTIVO</div>
+  <div id="clock">—</div>
 </header>
 
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('qr')">📲 Generar QR</button>
-  <button class="tab-btn" onclick="switchTab('scanner')">🔍 Escanear</button>
-  <button class="tab-btn" onclick="switchTab('records')">📋 Registros</button>
-  <button class="tab-btn" onclick="switchTab('employees')">👥 Colaboradores</button>
-</div>
+<nav>
+  <button class="tab active" onclick="goTab('qr',this)">📲 Código QR</button>
+  <button class="tab" onclick="goTab('scan',this)">🔍 Escanear</button>
+  <button class="tab" onclick="goTab('records',this)">📋 Registros</button>
+  <button class="tab" onclick="goTab('employees',this)">👥 Colaboradores</button>
+</nav>
 
 <main>
 
-  <!-- ===== TAB: GENERAR QR ===== -->
+  <!-- ===== QR PERMANENTE ===== -->
 
   <div id="panel-qr" class="panel active">
-    <div class="qr-grid">
-
-```
-  <div class="card">
-    <div class="card-title">Configurar QR de Sesión</div>
-    <div class="form-group">
-      <label>Evento / Sesión</label>
-      <input type="text" id="qrSesion" placeholder="Ej: Reunión general, Turno mañana..." value="Jornada laboral">
+    <div class="horario-info">
+      🕖 Hora de entrada: <strong>7:00 AM</strong> &nbsp;·&nbsp; Tolerancia: <strong>5 minutos</strong> &nbsp;·&nbsp; Tarde después de: <strong>7:05 AM</strong> &nbsp;·&nbsp; El QR <strong>no expira</strong>
     </div>
-    <div class="form-group">
-      <label>Tipo de registro</label>
-      <select id="qrTipo">
-        <option value="entrada">Entrada</option>
-        <option value="salida">Salida</option>
-        <option value="ambos">Entrada y Salida (automático)</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Válido por (minutos)</label>
-      <input type="number" id="qrExpiry" value="60" min="1" max="1440">
-    </div>
-    <button class="btn btn-primary" onclick="generateQR()">⚡ Generar Código QR</button>
-    <button class="btn btn-secondary" onclick="downloadQR()">⬇ Descargar QR</button>
-    <button class="btn btn-danger" onclick="clearQR()">🗑 Limpiar</button>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Código QR Generado</div>
-    <div class="qr-display">
-      <div id="qrPlaceholder" class="qr-placeholder" style="width:220px;height:220px;">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-          <rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/>
-        </svg>
-        <span>Configura y genera<br>el código QR</span>
-      </div>
-      <div id="qrcode" style="display:none;"></div>
-      <div class="qr-label" id="qrLabel"></div>
-      <div class="qr-info" id="qrInfo" style="display:none;"></div>
-    </div>
-  </div>
-
-</div>
-```
-
-  </div>
-
-  <!-- ===== TAB: SCANNER ===== -->
-
-  <div id="panel-scanner" class="panel">
-    <div class="scanner-card">
+    <div class="two-col">
       <div class="card">
-        <div class="card-title">Escanear QR con Cámara</div>
+        <div class="card-label">Generar QR permanente</div>
+        <p style="font-size:0.85rem;color:var(--ink2);margin-bottom:16px;line-height:1.6;">
+          Este QR será válido <strong>todo el año</strong>. Genéralo una sola vez, imprímelo o muéstralo en pantalla. Los colaboradores lo escanean cada día para registrar su entrada.
+        </p>
+        <div class="field">
+          <label>Nombre de tu empresa / equipo</label>
+          <input type="text" id="qrEmpresa" placeholder="Ej: Cervecería Nacional">
+        </div>
+        <button class="btn btn-blue" onclick="genQR()">⚡ Generar QR permanente</button>
+        <button class="btn btn-outline" onclick="dlQR()" style="margin-top:8px;">⬇ Descargar imagen QR</button>
+      </div>
 
 ```
-    <div id="scannerPlaceholder" class="scanner-placeholder">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-        <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
-        <rect x="7" y="7" width="10" height="10" rx="1"/>
-      </svg>
-      <span>La cámara aparecerá aquí</span>
-    </div>
-
-    <div id="scannerBox" class="scanner-box" style="display:none;">
-      <video id="preview" autoplay muted playsinline></video>
-      <div class="scan-overlay">
-        <div class="scan-frame">
-          <div class="scan-line"></div>
-          <div class="corner tl"></div><div class="corner tr"></div>
-          <div class="corner bl"></div><div class="corner br"></div>
+  <div class="card">
+    <div class="card-label">Tu código QR</div>
+    <div class="qr-wrap">
+      <div class="qr-box">
+        <div id="qrPlaceholder" style="width:200px;height:200px;background:var(--bg);border:2px dashed var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--ink2);font-size:0.8rem;text-align:center;">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".35">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3M17 17h3v3M14 20h3"/>
+          </svg>
+          <span>Presiona "Generar QR"<br>para crearlo</span>
         </div>
+        <div id="qrCanvas" style="display:none;"></div>
+      </div>
+      <div id="qrMeta" class="qr-meta"></div>
+      <div id="permanentBadge" style="display:none;" class="permanent-badge">
+        ✅ QR permanente · Sin fecha de vencimiento
       </div>
     </div>
+  </div>
+</div>
 
-    <div id="scanStatus" class="status-banner status-idle">
-      Presiona "Iniciar Cámara" para escanear
+<!-- Instrucciones -->
+<div class="card" style="margin-top:18px;">
+  <div class="card-label">¿Cómo usarlo?</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:4px;">
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:32px;height:32px;background:#eff6ff;color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;">1</div>
+      <div><div style="font-weight:600;font-size:0.875rem;">Genera el QR</div><div style="font-size:0.8rem;color:var(--ink2);margin-top:2px;">Una sola vez. Descárgalo e imprímelo o muéstralo en pantalla.</div></div>
     </div>
-
-    <button class="btn btn-primary" id="btnStartScan" onclick="startScan()" style="margin-top:14px;">
-      📷 Iniciar Cámara
-    </button>
-    <button class="btn btn-secondary" id="btnStopScan" onclick="stopScan()" style="display:none;">
-      ⏹ Detener Cámara
-    </button>
-
-    <div class="divider">o registro manual</div>
-
-    <div class="form-group">
-      <label>ID o Nombre del colaborador</label>
-      <input type="text" id="manualEmp" placeholder="Buscar colaborador...">
-      <div id="empSuggest" style="margin-top:6px;"></div>
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:32px;height:32px;background:#eff6ff;color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;">2</div>
+      <div><div style="font-weight:600;font-size:0.875rem;">Colaborador escanea</div><div style="font-size:0.8rem;color:var(--ink2);margin-top:2px;">Abre el link, va a "Escanear", activa la cámara y apunta al QR.</div></div>
     </div>
-    <div class="form-group">
-      <label>Tipo</label>
-      <select id="manualTipo">
-        <option value="entrada">Entrada</option>
-        <option value="salida">Salida</option>
-      </select>
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:32px;height:32px;background:#eff6ff;color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;">3</div>
+      <div><div style="font-weight:600;font-size:0.875rem;">Se registra automático</div><div style="font-size:0.8rem;color:var(--ink2);margin-top:2px;">El sistema marca A tiempo o Tarde según la hora.</div></div>
     </div>
-    <button class="btn btn-primary" onclick="manualRegister()">✅ Registrar Manualmente</button>
   </div>
 </div>
 ```
 
   </div>
 
-  <!-- ===== TAB: REGISTROS ===== -->
+  <!-- ===== SCANNER ===== -->
+
+  <div id="panel-scan" class="panel">
+    <div style="max-width:440px;margin:0 auto;">
+      <div class="card">
+        <div class="card-label">Marcar entrada</div>
+        <div class="horario-info" style="margin-bottom:14px;">
+          🕖 Entrada: <strong>7:00 AM</strong> · Tolerancia hasta: <strong>7:05 AM</strong>
+        </div>
+        <div id="scanPlaceholder" class="scan-placeholder" style="height:280px;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".3">
+            <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+            <rect x="7" y="7" width="10" height="10" rx="1"/>
+          </svg>
+          <span>Activa la cámara<br>para escanear</span>
+        </div>
+        <div id="scanBox" class="scan-wrap" style="display:none;">
+          <video id="camPreview" autoplay muted playsinline></video>
+          <div class="scan-ui">
+            <div class="scan-frame">
+              <div class="scan-line"></div>
+              <div class="corner tl"></div><div class="corner tr"></div>
+              <div class="corner bl"></div><div class="corner br"></div>
+            </div>
+          </div>
+        </div>
+        <div id="scanStatus" class="status-box s-idle">Presiona "Iniciar cámara" para comenzar</div>
+        <button class="btn btn-blue" id="btnStart" onclick="startCam()" style="margin-top:12px;">📷 Iniciar cámara</button>
+        <button class="btn btn-outline" id="btnStop" onclick="stopCam()" style="display:none;">⏹ Detener cámara</button>
+
+```
+    <div style="display:flex;align-items:center;gap:10px;margin:18px 0;color:var(--ink2);font-size:0.8rem;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>o registro manual<div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+    <div class="field">
+      <label>Nombre o ID del colaborador</label>
+      <input type="text" id="manName" placeholder="Buscar..." oninput="showSuggest()">
+      <div id="suggest" style="margin-top:4px;"></div>
+    </div>
+    <button class="btn btn-green" onclick="manualReg()">✅ Registrar entrada</button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ===== REGISTROS ===== -->
 
   <div id="panel-records" class="panel">
-    <div class="records-header">
-      <h2>Registros de Asistencia</h2>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-secondary" style="width:auto;padding:8px 16px;" onclick="exportCSV()">⬇ Exportar CSV</button>
-        <button class="btn btn-danger" style="width:auto;padding:8px 16px;" onclick="clearRecords()">🗑 Limpiar</button>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-n">Total registros</div><div class="stat-v c-blue" id="sTotal">0</div></div>
+      <div class="stat"><div class="stat-n">A tiempo hoy</div><div class="stat-v c-green" id="sTiempo">0</div></div>
+      <div class="stat"><div class="stat-n">Tarde hoy</div><div class="stat-v c-yellow" id="sTarde">0</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <span class="card-label" style="margin:0;">Historial de entradas</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-green btn-sm" onclick="exportExcel()">⬇ Exportar Excel</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:#fca5a5;" onclick="clearRecs()">🗑 Limpiar</button>
+        </div>
+      </div>
+      <div class="filters">
+        <input type="text" id="fText" placeholder="🔎 Nombre o ID..." oninput="renderTable()">
+        <input type="date" id="fDate" oninput="renderTable()">
+        <select id="fStatus" onchange="renderTable()">
+          <option value="">Todos</option>
+          <option value="A tiempo">A tiempo</option>
+          <option value="Tarde">Tarde</option>
+        </select>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Nombre</th><th>ID</th><th>Hora Entrada</th><th>Estado</th><th>Fecha</th></tr>
+          </thead>
+          <tbody id="tBody"></tbody>
+        </table>
       </div>
     </div>
-
-```
-<div class="stats-row">
-  <div class="stat-card">
-    <div class="stat-label">Total Registros</div>
-    <div class="stat-value white" id="statTotal">0</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Entradas Hoy</div>
-    <div class="stat-value green" id="statEntradas">0</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Salidas Hoy</div>
-    <div class="stat-value blue" id="statSalidas">0</div>
-  </div>
-</div>
-
-<div class="card">
-  <div class="filter-row">
-    <input type="text" id="filterText" placeholder="🔎 Buscar colaborador..." oninput="renderTable()">
-    <input type="date" id="filterDate" oninput="renderTable()">
-    <select id="filterType" onchange="renderTable()">
-      <option value="">Todos los tipos</option>
-      <option value="entrada">Entrada</option>
-      <option value="salida">Salida</option>
-    </select>
-  </div>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Colaborador</th>
-          <th>ID</th>
-          <th>Departamento</th>
-          <th>Tipo</th>
-          <th>Sesión</th>
-          <th>Fecha</th>
-          <th>Hora</th>
-        </tr>
-      </thead>
-      <tbody id="recordsBody">
-        <tr><td colspan="8">
-          <div class="empty-state">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 8px;">
-              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-            No hay registros aún
-          </div>
-        </td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-```
-
   </div>
 
-  <!-- ===== TAB: COLABORADORES ===== -->
+  <!-- ===== COLABORADORES ===== -->
 
   <div id="panel-employees" class="panel">
-    <div style="margin-bottom:20px;">
-      <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:4px;">Colaboradores Registrados</h2>
-      <p style="color:var(--muted);font-size:0.85rem;">Gestiona el directorio de empleados</p>
+    <div style="margin-bottom:18px;">
+      <h2 style="font-size:1.25rem;font-weight:700;">Colaboradores</h2>
+      <p style="font-size:0.84rem;color:var(--ink2);margin-top:2px;">Agrega tu equipo para que aparezcan como sugerencia al registrar</p>
     </div>
-
-```
-<div class="add-emp-form">
-  <div class="card-title">Agregar Nuevo Colaborador</div>
-  <div class="add-emp-grid">
-    <div class="form-group" style="margin-bottom:0;">
-      <label>Nombre completo</label>
-      <input type="text" id="newEmpName" placeholder="Ej: María González">
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-label">Agregar colaborador</div>
+      <div class="two-col">
+        <div class="field" style="margin-bottom:0;">
+          <label>Nombre completo</label>
+          <input type="text" id="eNombre" placeholder="Ej: María González">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>ID Empleado</label>
+          <input type="text" id="eId" placeholder="Ej: EMP-001">
+        </div>
+      </div>
+      <button class="btn btn-blue" style="margin-top:14px;" onclick="addEmp()">➕ Agregar</button>
     </div>
-    <div class="form-group" style="margin-bottom:0;">
-      <label>ID Empleado</label>
-      <input type="text" id="newEmpId" placeholder="Ej: EMP-001">
-    </div>
-    <div class="form-group" style="margin-bottom:0;margin-top:12px;">
-      <label>Departamento</label>
-      <input type="text" id="newEmpDept" placeholder="Ej: Recursos Humanos">
-    </div>
-    <div class="form-group" style="margin-bottom:0;margin-top:12px;">
-      <label>Cargo</label>
-      <input type="text" id="newEmpRole" placeholder="Ej: Analista">
-    </div>
-  </div>
-  <button class="btn btn-primary" style="margin-top:16px;" onclick="addEmployee()">➕ Agregar Colaborador</button>
-</div>
-
-<div class="emp-grid" id="empGrid"></div>
-```
-
+    <div class="emp-grid" id="empGrid"></div>
   </div>
 
 </main>
 
-<!-- Toast -->
+<!-- MODAL: quién está marcando -->
+
+<div id="modal" class="modal-bg hidden">
+  <div class="modal">
+    <h3>¿Quién está marcando entrada?</h3>
+    <p class="sub" id="mSub">Escribe tu nombre o ID de empleado</p>
+    <div class="field">
+      <label>Nombre o ID</label>
+      <input type="text" id="modalInput" placeholder="Ej: EMP-001 o tu nombre" autocomplete="off">
+      <div id="modalSuggest" style="margin-top:4px;"></div>
+    </div>
+    <button class="btn btn-blue" onclick="confirmReg()">✅ Confirmar entrada</button>
+    <button class="btn btn-outline" onclick="closeModal()" style="margin-top:8px;">Cancelar</button>
+  </div>
+</div>
 
 <div id="toast"></div>
 
-<!-- jsQR for QR scanning -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
-
 <script>
-// ===== STATE =====
-let employees = JSON.parse(localStorage.getItem('qr_employees') || '[]');
-let records = JSON.parse(localStorage.getItem('qr_records') || '[]');
-let currentQRData = null;
-let scanStream = null;
-let scanInterval = null;
+// ===== CONFIGURACIÓN =====
+const HORA_ENTRADA   = 7;   // 7 AM
+const MIN_ENTRADA    = 0;
+const TOLERANCIA_MIN = 5;   // 5 minutos de tolerancia
 
-// Default employees
-if (employees.length === 0) {
+// Código fijo permanente — nunca cambia
+const QR_CODE_PERMANENTE = 'ASISTENCIA-QR-PERMANENTE-2024';
+
+// ===== DATOS =====
+let employees = JSON.parse(localStorage.getItem('att_emps') || '[]');
+let records   = JSON.parse(localStorage.getItem('att_recs') || '[]');
+
+if (!employees.length) {
   employees = [
-    { id: 'EMP-001', name: 'Carlos Martínez', dept: 'Tecnología', role: 'Desarrollador' },
-    { id: 'EMP-002', name: 'Ana López', dept: 'RRHH', role: 'Coordinadora' },
-    { id: 'EMP-003', name: 'Luis Rodríguez', dept: 'Ventas', role: 'Asesor' },
-    { id: 'EMP-004', name: 'María García', dept: 'Finanzas', role: 'Analista' },
+    {id:'EMP-001', name:'Carlos Martínez'},
+    {id:'EMP-002', name:'Ana López'},
+    {id:'EMP-003', name:'Luis Rodríguez'},
+    {id:'EMP-004', name:'María García'},
   ];
-  saveEmployees();
+  saveEmps();
 }
 
-function saveEmployees() { localStorage.setItem('qr_employees', JSON.stringify(employees)); }
-function saveRecords() { localStorage.setItem('qr_records', JSON.stringify(records)); }
+function saveEmps(){ localStorage.setItem('att_emps', JSON.stringify(employees)); }
+function saveRecs() { localStorage.setItem('att_recs',  JSON.stringify(records)); }
 
-// ===== CLOCK =====
-function updateClock() {
-  const now = new Date();
-  document.getElementById('headerClock').textContent =
-    now.toLocaleDateString('es-MX', {weekday:'short',day:'2-digit',month:'short'}) + ' · ' +
-    now.toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+// ===== RELOJ =====
+setInterval(() => {
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    n.toLocaleDateString('es',{weekday:'short',day:'2-digit',month:'short'}) + ' · ' +
+    n.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}, 1000);
+
+// ===== ESTADO =====
+function getEstado(date){
+  const total = date.getHours()*60 + date.getMinutes();
+  const limite = HORA_ENTRADA*60 + MIN_ENTRADA + TOLERANCIA_MIN;
+  return total <= limite ? 'A tiempo' : 'Tarde';
 }
-setInterval(updateClock, 1000); updateClock();
+function getRetraso(date){
+  const total = date.getHours()*60 + date.getMinutes();
+  const limite = HORA_ENTRADA*60 + MIN_ENTRADA + TOLERANCIA_MIN;
+  return Math.max(0, total - limite);
+}
 
 // ===== TABS =====
-function switchTab(tab) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-' + tab).classList.add('active');
-  event.target.classList.add('active');
-  if (tab === 'records') { renderTable(); updateStats(); }
-  if (tab === 'employees') renderEmployees();
-  if (tab !== 'scanner') stopScan();
+function goTab(id, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='records'){renderTable();updateStats();}
+  if(id==='employees') renderEmps();
+  if(id!=='scan') stopCam();
 }
 
 // ===== TOAST =====
-function showToast(msg, type = 'success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'show ' + type;
-  setTimeout(() => { t.className = ''; }, 3000);
+function toast(msg, type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+type;
+  setTimeout(()=>t.className='',3500);
 }
 
-// ===== QR GENERATION =====
-function generateQR() {
-  const sesion = document.getElementById('qrSesion').value.trim() || 'Sesión';
-  const tipo = document.getElementById('qrTipo').value;
-  const expiry = parseInt(document.getElementById('qrExpiry').value) || 60;
-  const now = new Date();
-  const exp = new Date(now.getTime() + expiry * 60000);
+// ===== QR PERMANENTE =====
+function genQR(){
+  const empresa = document.getElementById('qrEmpresa').value.trim() || 'Asistencia';
+  const payload = JSON.stringify({
+    v: 1,
+    tipo: 'permanente',
+    empresa: empresa,
+    code: QR_CODE_PERMANENTE
+  });
 
-  currentQRData = {
-    sesion, tipo,
-    created: now.toISOString(),
-    expires: exp.toISOString(),
-    code: 'QR-' + Date.now()
-  };
-
-  const payload = JSON.stringify(currentQRData);
-  document.getElementById('qrcode').innerHTML = '';
-
-  new QRCode(document.getElementById('qrcode'), {
+  document.getElementById('qrCanvas').innerHTML = '';
+  new QRCode(document.getElementById('qrCanvas'), {
     text: payload,
-    width: 220, height: 220,
-    colorDark: '#000000', colorLight: '#ffffff',
+    width: 200, height: 200,
+    colorDark: '#1a1a1a', colorLight: '#ffffff',
     correctLevel: QRCode.CorrectLevel.M
   });
 
   document.getElementById('qrPlaceholder').style.display = 'none';
-  document.getElementById('qrcode').style.display = 'block';
-  document.getElementById('qrLabel').textContent = sesion + ' · ' + tipo.toUpperCase();
-
-  document.getElementById('qrInfo').style.display = 'block';
-  document.getElementById('qrInfo').innerHTML =
-    `<strong>Sesión:</strong> ${sesion}<br>
-     <strong>Tipo:</strong> ${tipo}<br>
-     <strong>Generado:</strong> ${now.toLocaleTimeString('es-MX')}<br>
-     <strong>Expira:</strong> ${exp.toLocaleTimeString('es-MX')} (${expiry} min)`;
-
-  showToast('✅ QR generado correctamente');
+  document.getElementById('qrCanvas').style.display = 'block';
+  document.getElementById('permanentBadge').style.display = 'inline-flex';
+  document.getElementById('qrMeta').innerHTML =
+    `<strong>${empresa}</strong><br>Registro de entrada diaria`;
+  toast('✅ QR permanente generado');
 }
 
-function clearQR() {
-  currentQRData = null;
-  document.getElementById('qrcode').innerHTML = '';
-  document.getElementById('qrcode').style.display = 'none';
-  document.getElementById('qrPlaceholder').style.display = 'flex';
-  document.getElementById('qrLabel').textContent = '';
-  document.getElementById('qrInfo').style.display = 'none';
+function dlQR(){
+  const c = document.querySelector('#qrCanvas canvas');
+  if(!c){ toast('Primero genera el QR','fail'); return; }
+  const a = document.createElement('a');
+  a.download = 'asistencia-qr-permanente.png';
+  a.href = c.toDataURL(); a.click();
+  toast('QR descargado ✓');
 }
 
-function downloadQR() {
-  const canvas = document.querySelector('#qrcode canvas');
-  if (!canvas) { showToast('Primero genera un QR', 'error'); return; }
-  const link = document.createElement('a');
-  link.download = 'asistencia-qr.png';
-  link.href = canvas.toDataURL();
-  link.click();
-  showToast('⬇ QR descargado');
-}
+// ===== CÁMARA =====
+let stream=null, scanLoop=null, pendingQR=null;
 
-// ===== SCANNER =====
-async function startScan() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    scanStream = stream;
-    const video = document.getElementById('preview');
-    video.srcObject = stream;
-    document.getElementById('scannerPlaceholder').style.display = 'none';
-    document.getElementById('scannerBox').style.display = 'block';
-    document.getElementById('btnStartScan').style.display = 'none';
-    document.getElementById('btnStopScan').style.display = 'block';
-    setStatus('Apunta el QR al recuadro...', 'idle');
-    scanInterval = setInterval(decodeFrame, 300);
-  } catch (e) {
-    showToast('No se pudo acceder a la cámara', 'error');
-    setStatus('Error al acceder a la cámara', 'error');
+async function startCam(){
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    document.getElementById('camPreview').srcObject = stream;
+    document.getElementById('scanPlaceholder').style.display = 'none';
+    document.getElementById('scanBox').style.display = 'block';
+    document.getElementById('btnStart').style.display = 'none';
+    document.getElementById('btnStop').style.display = 'block';
+    setStatus('Apunta al código QR...','idle');
+    scanLoop = setInterval(readFrame, 350);
+  }catch(e){
+    setStatus('No se pudo acceder a la cámara','err');
+    toast('Error de cámara','fail');
   }
 }
 
-function stopScan() {
-  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
-  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
-  document.getElementById('scannerPlaceholder').style.display = 'flex';
-  document.getElementById('scannerBox').style.display = 'none';
-  document.getElementById('btnStartScan').style.display = 'block';
-  document.getElementById('btnStopScan').style.display = 'none';
-  setStatus('Presiona "Iniciar Cámara" para escanear', 'idle');
+function stopCam(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  if(scanLoop){ clearInterval(scanLoop); scanLoop=null; }
+  document.getElementById('scanPlaceholder').style.display = 'flex';
+  document.getElementById('scanBox').style.display = 'none';
+  document.getElementById('btnStart').style.display = 'block';
+  document.getElementById('btnStop').style.display = 'none';
+  setStatus('Presiona "Iniciar cámara" para comenzar','idle');
 }
 
-function decodeFrame() {
-  const video = document.getElementById('preview');
-  if (!video || video.readyState < 2) return;
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0);
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const code = jsQR(imageData.data, imageData.width, imageData.height);
-  if (code) {
-    try {
-      const data = JSON.parse(code.data);
-      if (data.code && data.sesion) {
-        processQRScan(data);
-        stopScan();
+function readFrame(){
+  const vid = document.getElementById('camPreview');
+  if(!vid || vid.readyState < 2) return;
+  const c = document.createElement('canvas');
+  c.width = vid.videoWidth; c.height = vid.videoHeight;
+  c.getContext('2d').drawImage(vid, 0, 0);
+  const img = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+  const qr = jsQR(img.data, img.width, img.height);
+  if(qr){
+    try{
+      const d = JSON.parse(qr.data);
+      // Acepta QR permanente
+      if(d.code === QR_CODE_PERMANENTE || d.tipo === 'permanente'){
+        stopCam();
+        openModal(d.empresa || 'Asistencia');
       }
-    } catch (e) {
-      // not our QR
-    }
+    }catch(e){}
   }
 }
 
-function processQRScan(qrData) {
-  const now = new Date();
-  if (new Date(qrData.expires) < now) {
-    setStatus('❌ Este QR ha expirado', 'error');
-    showToast('QR expirado', 'error');
-    return;
-  }
-  // Ask who is scanning (simple prompt for demo)
-  const name = prompt('¿Cuál es tu nombre o ID de colaborador?', '');
-  if (!name) return;
-
-  const emp = employees.find(e =>
-    e.name.toLowerCase().includes(name.toLowerCase()) ||
-    e.id.toLowerCase() === name.toLowerCase()
-  );
-
-  let tipo = qrData.tipo;
-  if (tipo === 'ambos') {
-    // Check last record for this person today
-    const today = now.toDateString();
-    const todayRecords = records.filter(r =>
-      r.empName.toLowerCase().includes(name.toLowerCase()) &&
-      new Date(r.timestamp).toDateString() === today
-    );
-    const lastType = todayRecords.length > 0 ? todayRecords[todayRecords.length - 1].tipo : null;
-    tipo = lastType === 'entrada' ? 'salida' : 'entrada';
-  }
-
-  const record = {
-    id: Date.now(),
-    empId: emp ? emp.id : 'N/A',
-    empName: emp ? emp.name : name,
-    dept: emp ? emp.dept : '—',
-    tipo,
-    sesion: qrData.sesion,
-    timestamp: now.toISOString(),
-    method: 'qr'
-  };
-
-  records.unshift(record);
-  saveRecords();
-
-  setStatus(`✅ ${record.tipo.toUpperCase()} registrada: ${record.empName}`, 'success');
-  showToast(`✅ ${record.tipo.toUpperCase()} registrada para ${record.empName}`);
-  updateStats();
-}
-
-function setStatus(msg, type) {
+function setStatus(msg, t){
   const el = document.getElementById('scanStatus');
   el.textContent = msg;
-  el.className = 'status-banner status-' + type;
+  el.className = 'status-box s-'+t;
 }
 
-// ===== MANUAL REGISTER =====
-document.getElementById('manualEmp').addEventListener('input', function() {
+// ===== MODAL =====
+function openModal(empresa){
+  pendingQR = empresa;
+  document.getElementById('mSub').textContent = empresa;
+  document.getElementById('modalInput').value = '';
+  document.getElementById('modalSuggest').innerHTML = '';
+  document.getElementById('modal').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('modalInput').focus(), 200);
+}
+
+document.getElementById('modalInput').addEventListener('input', function(){
   const val = this.value.toLowerCase();
-  const box = document.getElementById('empSuggest');
-  if (val.length < 1) { box.innerHTML = ''; return; }
-  const matches = employees.filter(e =>
+  const box = document.getElementById('modalSuggest');
+  if(!val){ box.innerHTML=''; return; }
+  const hits = employees.filter(e=>
     e.name.toLowerCase().includes(val) || e.id.toLowerCase().includes(val)
-  ).slice(0, 4);
-  box.innerHTML = matches.map(e =>
-    `<div onclick="selectEmp('${e.name}')" style="cursor:pointer;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;margin-bottom:4px;font-size:0.85rem;">
-      <strong>${e.name}</strong> <span style="color:var(--muted);">${e.id} · ${e.dept}</span>
+  ).slice(0,5);
+  box.innerHTML = hits.map(e=>
+    `<div onclick="pickModal('${e.name}')" style="cursor:pointer;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;margin-bottom:4px;font-size:0.84rem;">
+      <strong>${e.name}</strong> <span style="color:var(--ink2);">${e.id}</span>
     </div>`
   ).join('');
 });
 
-function selectEmp(name) {
-  document.getElementById('manualEmp').value = name;
-  document.getElementById('empSuggest').innerHTML = '';
+function pickModal(n){
+  document.getElementById('modalInput').value = n;
+  document.getElementById('modalSuggest').innerHTML = '';
 }
 
-function manualRegister() {
-  const name = document.getElementById('manualEmp').value.trim();
-  const tipo = document.getElementById('manualTipo').value;
-  if (!name) { showToast('Ingresa el nombre del colaborador', 'error'); return; }
+function confirmReg(){
+  const val = document.getElementById('modalInput').value.trim();
+  if(!val){ toast('Escribe tu nombre o ID','fail'); return; }
+  registerEntry(val, pendingQR || 'QR');
+  closeModal();
+}
 
-  const emp = employees.find(e =>
-    e.name.toLowerCase().includes(name.toLowerCase()) ||
-    e.id.toLowerCase() === name.toLowerCase()
+function closeModal(){
+  document.getElementById('modal').classList.add('hidden');
+  pendingQR = null;
+  document.getElementById('modalInput').value = '';
+  document.getElementById('modalSuggest').innerHTML = '';
+}
+
+// ===== REGISTRAR ENTRADA =====
+function registerEntry(nameOrId, empresa){
+  const emp = employees.find(e=>
+    e.id.toLowerCase() === nameOrId.toLowerCase() ||
+    e.name.toLowerCase().includes(nameOrId.toLowerCase())
   );
+  const now = new Date();
+  const hoy = now.toDateString();
 
-  const record = {
-    id: Date.now(),
-    empId: emp ? emp.id : 'N/A',
-    empName: emp ? emp.name : name,
-    dept: emp ? emp.dept : '—',
-    tipo,
-    sesion: 'Registro manual',
-    timestamp: new Date().toISOString(),
-    method: 'manual'
-  };
-
-  records.unshift(record);
-  saveRecords();
-  document.getElementById('manualEmp').value = '';
-  showToast(`✅ ${tipo.toUpperCase()} registrada para ${record.empName}`);
-  updateStats();
-}
-
-// ===== RECORDS TABLE =====
-function renderTable() {
-  const filter = document.getElementById('filterText').value.toLowerCase();
-  const filterDate = document.getElementById('filterDate').value;
-  const filterType = document.getElementById('filterType').value;
-
-  let filtered = records.filter(r => {
-    const matchText = !filter || r.empName.toLowerCase().includes(filter) || r.empId.toLowerCase().includes(filter);
-    const matchDate = !filterDate || r.timestamp.startsWith(filterDate);
-    const matchType = !filterType || r.tipo === filterType;
-    return matchText && matchDate && matchType;
-  });
-
-  const tbody = document.getElementById('recordsBody');
-  if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">No hay registros que coincidan</div></td></tr>`;
+  // Verificar si ya marcó hoy
+  const yaMarcó = records.find(r=>
+    (r.empId === (emp ? emp.id : '—') || r.name.toLowerCase() === nameOrId.toLowerCase()) &&
+    new Date(r.ts).toDateString() === hoy
+  );
+  if(yaMarcó){
+    toast('⚠️ Ya marcaste entrada hoy a las '+yaMarcó.time,'warn');
+    setStatus('⚠️ Ya registraste entrada hoy: '+yaMarcó.time,'warn');
     return;
   }
 
-  tbody.innerHTML = filtered.map((r, i) => {
-    const d = new Date(r.timestamp);
+  const estado  = getEstado(now);
+  const retraso = getRetraso(now);
+
+  const rec = {
+    id:      Date.now(),
+    empId:   emp ? emp.id : '—',
+    name:    emp ? emp.name : nameOrId,
+    empresa: empresa,
+    estado,
+    retraso,
+    date:    now.toLocaleDateString('es-MX'),
+    time:    now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+    ts:      now.toISOString()
+  };
+
+  records.unshift(rec); saveRecs(); updateStats();
+
+  if(estado === 'A tiempo'){
+    toast('✅ Entrada a tiempo: '+rec.name);
+    setStatus('✅ A tiempo — '+rec.name+' · '+rec.time,'ok');
+  } else {
+    toast('⚠️ Tarde '+retraso+' min: '+rec.name,'warn');
+    setStatus('⚠️ Tarde '+retraso+' min — '+rec.name+' · '+rec.time,'warn');
+  }
+}
+
+function manualReg(){
+  const val = document.getElementById('manName').value.trim();
+  if(!val){ toast('Escribe el nombre o ID','fail'); return; }
+  registerEntry(val, 'Manual');
+  document.getElementById('manName').value = '';
+  document.getElementById('suggest').innerHTML = '';
+}
+
+// ===== SUGERENCIAS MANUAL =====
+function showSuggest(){
+  const val = document.getElementById('manName').value.toLowerCase();
+  const box = document.getElementById('suggest');
+  if(!val){ box.innerHTML=''; return; }
+  const hits = employees.filter(e=>
+    e.name.toLowerCase().includes(val) || e.id.toLowerCase().includes(val)
+  ).slice(0,5);
+  box.innerHTML = hits.map(e=>
+    `<div onclick="pickEmp('${e.name}')" style="cursor:pointer;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;margin-bottom:4px;font-size:0.84rem;">
+      <strong>${e.name}</strong> <span style="color:var(--ink2);">${e.id}</span>
+    </div>`
+  ).join('');
+}
+function pickEmp(n){
+  document.getElementById('manName').value = n;
+  document.getElementById('suggest').innerHTML = '';
+}
+
+// ===== TABLA =====
+function renderTable(){
+  const ft = document.getElementById('fText').value.toLowerCase();
+  const fd = document.getElementById('fDate').value;
+  const fs = document.getElementById('fStatus').value;
+  const filtered = records.filter(r=>{
+    const mt = !ft || r.name.toLowerCase().includes(ft) || r.empId.toLowerCase().includes(ft);
+    const md = !fd || r.ts.startsWith(fd);
+    const ms = !fs || r.estado === fs;
+    return mt && md && ms;
+  });
+  const body = document.getElementById('tBody');
+  if(!filtered.length){
+    body.innerHTML=`<tr><td colspan="6" class="empty">Sin registros aún</td></tr>`;
+    return;
+  }
+  body.innerHTML = filtered.map((r,i)=>{
+    const pill = r.estado==='A tiempo'
+      ? `<span class="pill pill-green">✅ A tiempo</span>`
+      : `<span class="pill pill-yellow">⚠️ Tarde ${r.retraso} min</span>`;
     return `<tr>
-      <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:0.75rem;">${i+1}</td>
-      <td><strong>${r.empName}</strong></td>
-      <td style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--muted);">${r.empId}</td>
-      <td style="color:var(--muted);font-size:0.82rem;">${r.dept}</td>
-      <td><span class="badge badge-${r.tipo}">${r.tipo.toUpperCase()}</span></td>
-      <td style="font-size:0.8rem;color:var(--muted);">${r.sesion}</td>
-      <td style="font-family:'Space Mono',monospace;font-size:0.78rem;">${d.toLocaleDateString('es-MX')}</td>
-      <td style="font-family:'Space Mono',monospace;font-size:0.78rem;">${d.toLocaleTimeString('es-MX')}</td>
+      <td style="color:var(--ink2);font-family:'DM Mono',monospace;font-size:0.75rem;">${i+1}</td>
+      <td><strong>${r.name}</strong></td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.77rem;color:var(--ink2);">${r.empId}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.82rem;font-weight:600;color:var(--green);">${r.time}</td>
+      <td>${pill}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.77rem;">${r.date}</td>
     </tr>`;
   }).join('');
 }
 
-function updateStats() {
-  const today = new Date().toDateString();
-  const todayRecs = records.filter(r => new Date(r.timestamp).toDateString() === today);
-  document.getElementById('statTotal').textContent = records.length;
-  document.getElementById('statEntradas').textContent = todayRecs.filter(r => r.tipo === 'entrada').length;
-  document.getElementById('statSalidas').textContent = todayRecs.filter(r => r.tipo === 'salida').length;
+function updateStats(){
+  const hoy = new Date().toDateString();
+  const hoyRecs = records.filter(r=>new Date(r.ts).toDateString()===hoy);
+  document.getElementById('sTotal').textContent   = records.length;
+  document.getElementById('sTiempo').textContent  = hoyRecs.filter(r=>r.estado==='A tiempo').length;
+  document.getElementById('sTarde').textContent   = hoyRecs.filter(r=>r.estado==='Tarde').length;
 }
 
-function clearRecords() {
-  if (!confirm('¿Seguro que deseas borrar todos los registros?')) return;
-  records = []; saveRecords(); renderTable(); updateStats();
-  showToast('Registros eliminados');
+function clearRecs(){
+  if(!confirm('¿Borrar todos los registros?')) return;
+  records=[]; saveRecs(); renderTable(); updateStats();
+  toast('Registros eliminados');
 }
 
-function exportCSV() {
-  if (records.length === 0) { showToast('No hay registros para exportar', 'error'); return; }
-  const headers = ['Nombre', 'ID', 'Departamento', 'Tipo', 'Sesión', 'Fecha', 'Hora', 'Método'];
-  const rows = records.map(r => {
-    const d = new Date(r.timestamp);
-    return [r.empName, r.empId, r.dept, r.tipo, r.sesion,
-      d.toLocaleDateString('es-MX'), d.toLocaleTimeString('es-MX'), r.method].join(',');
+// ===== EXPORTAR EXCEL =====
+function exportExcel(){
+  if(!records.length){ toast('No hay registros','fail'); return; }
+  const ft = document.getElementById('fText').value.toLowerCase();
+  const fd = document.getElementById('fDate').value;
+  const fs = document.getElementById('fStatus').value;
+  let data = records.filter(r=>{
+    const mt = !ft || r.name.toLowerCase().includes(ft) || r.empId.toLowerCase().includes(ft);
+    const md = !fd || r.ts.startsWith(fd);
+    const ms = !fs || r.estado === fs;
+    return mt && md && ms;
   });
-  const csv = [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'asistencia.csv'; a.click();
-  showToast('⬇ CSV exportado');
+  const BOM = '\uFEFF';
+  const header = ['#','Nombre','ID Empleado','Hora de Entrada','Estado','Minutos de Retraso','Fecha'].join(',');
+  const rows = data.map((r,i)=>[i+1,`"${r.name}"`,r.empId,r.time,r.estado,r.retraso||0,r.date].join(','));
+  const csv  = BOM + [header,...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const fecha = new Date().toLocaleDateString('es-MX').replace(/\//g,'-');
+  a.download = `Asistencia_${fecha}.csv`;
+  a.href = url; a.click();
+  toast('✅ Excel exportado');
 }
 
-// ===== EMPLOYEES =====
-function renderEmployees() {
-  const grid = document.getElementById('empGrid');
-  if (employees.length === 0) {
-    grid.innerHTML = '<p style="color:var(--muted);">Sin colaboradores registrados.</p>';
-    return;
-  }
-  grid.innerHTML = employees.map((e, i) =>
+// ===== COLABORADORES =====
+function renderEmps(){
+  const g = document.getElementById('empGrid');
+  if(!employees.length){ g.innerHTML='<p style="color:var(--ink2);">Sin colaboradores.</p>'; return; }
+  g.innerHTML = employees.map(e=>
     `<div class="emp-card">
-      <div class="emp-avatar">${e.name.charAt(0)}</div>
-      <div>
-        <div class="emp-name">${e.name}</div>
-        <div class="emp-id">${e.id}</div>
-        <div class="emp-dept">${e.dept} · ${e.role}</div>
-      </div>
+      <div class="avatar">${e.name.charAt(0).toUpperCase()}</div>
+      <div><div class="emp-name">${e.name}</div><div class="emp-sub">${e.id}</div></div>
     </div>`
   ).join('');
 }
 
-function addEmployee() {
-  const name = document.getElementById('newEmpName').value.trim();
-  const id = document.getElementById('newEmpId').value.trim();
-  const dept = document.getElementById('newEmpDept').value.trim();
-  const role = document.getElementById('newEmpRole').value.trim();
-  if (!name || !id) { showToast('Nombre e ID son requeridos', 'error'); return; }
-  if (employees.find(e => e.id === id)) { showToast('Ya existe un colaborador con ese ID', 'error'); return; }
-  employees.push({ id, name, dept: dept || '—', role: role || '—' });
-  saveEmployees(); renderEmployees();
-  document.getElementById('newEmpName').value = '';
-  document.getElementById('newEmpId').value = '';
-  document.getElementById('newEmpDept').value = '';
-  document.getElementById('newEmpRole').value = '';
-  showToast(`✅ ${name} agregado`);
+function addEmp(){
+  const name = document.getElementById('eNombre').value.trim();
+  const id   = document.getElementById('eId').value.trim();
+  if(!name||!id){ toast('Nombre e ID son requeridos','fail'); return; }
+  if(employees.find(e=>e.id===id)){ toast('Ya existe ese ID','fail'); return; }
+  employees.push({id,name});
+  saveEmps(); renderEmps();
+  document.getElementById('eNombre').value='';
+  document.getElementById('eId').value='';
+  toast('✅ '+name+' agregado');
 }
 
-// Init
 updateStats();
 </script>
 
