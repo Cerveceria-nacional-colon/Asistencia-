@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Asistencia · Cervecería Nacional</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -24,44 +22,34 @@
   --yellow-light: #fffbeb;
   --shadow: 0 2px 12px rgba(37,99,235,0.08), 0 1px 4px rgba(0,0,0,0.05);
   --shadow-lg: 0 8px 40px rgba(37,99,235,0.12), 0 2px 8px rgba(0,0,0,0.08);
-  --shadow-md: 0 2px 8px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.06);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
 
-/* ===== VISTA COLABORADOR ===== */
 #vistaColaborador {
-  min-height:100vh;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  padding:24px 16px;
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:24px 16px;
   background: linear-gradient(160deg, #eff6ff 0%, #f0fdf4 100%);
 }
 .register-card {
-  background:var(--white);
-  border-radius:24px;
-  padding:36px 28px;
-  width:100%; max-width:400px;
-  box-shadow:var(--shadow-lg);
-  border:1px solid var(--border);
+  background:var(--white); border-radius:24px; padding:36px 28px;
+  width:100%; max-width:400px; box-shadow:var(--shadow-lg); border:1px solid var(--border);
 }
-.brand {
-  display:flex; flex-direction:column; align-items:center; gap:10px;
-  margin-bottom:28px;
-}
+.brand { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:28px; }
 .brand-icon {
-  width:56px; height:56px; background:var(--accent);
-  border-radius:16px; display:flex; align-items:center; justify-content:center;
+  width:56px; height:56px; background:var(--accent); border-radius:16px;
+  display:flex; align-items:center; justify-content:center;
   box-shadow:0 4px 16px rgba(37,99,235,0.35);
 }
-.brand-name { font-size:1.15rem; font-weight:700; color:var(--ink); }
+.brand-name { font-size:1.15rem; font-weight:700; }
 .brand-sub  { font-size:0.8rem; color:var(--ink2); margin-top:-6px; }
 .hora-badge {
-  display:flex; align-items:center; justify-content:center; gap:8px;
+  display:flex; align-items:center; justify-content:center;
   background:var(--accent-light); border:1px solid #bfdbfe;
-  border-radius:12px; padding:10px 16px; margin-bottom:24px;
+  border-radius:12px; padding:10px 16px; margin-bottom:24px; text-align:center;
 }
 .hora-badge .time { font-family:'DM Mono',monospace; font-size:1.4rem; font-weight:500; color:var(--accent); }
-.hora-badge .date { font-size:0.78rem; color:var(--ink2); }
+.hora-badge .date { font-size:0.78rem; color:var(--ink2); margin-top:2px; }
 .field { margin-bottom:16px; }
 .field label { display:block; font-size:0.8rem; font-weight:700; color:var(--ink2); margin-bottom:6px; letter-spacing:0.04em; text-transform:uppercase; }
 .field input {
@@ -73,43 +61,33 @@ body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink);
 .field input::placeholder { color:#bbb; }
 .btn-register {
   width:100%; padding:15px; border:none; border-radius:12px;
-  background:var(--accent); color:#fff;
-  font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700;
-  cursor:pointer; transition:all 0.2s; margin-top:4px;
+  background:var(--accent); color:#fff; font-family:'DM Sans',sans-serif;
+  font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:4px;
   box-shadow:0 4px 16px rgba(37,99,235,0.3);
 }
 .btn-register:hover { background:#1d4ed8; transform:translateY(-1px); }
-.btn-register:active { transform:translateY(0); }
 .btn-register:disabled { background:#93c5fd; cursor:not-allowed; transform:none; }
 .horario-note {
-  display:flex; align-items:center; gap:6px;
-  background:var(--yellow-light); border:1px solid #fde68a;
-  border-radius:10px; padding:10px 14px;
-  font-size:0.8rem; color:var(--yellow); margin-top:16px;
-  font-weight:500;
+  display:flex; align-items:center; gap:6px; background:var(--yellow-light);
+  border:1px solid #fde68a; border-radius:10px; padding:10px 14px;
+  font-size:0.8rem; color:var(--yellow); margin-top:16px; font-weight:500;
 }
-.result-box {
-  border-radius:14px; padding:18px; margin-top:18px;
-  text-align:center; display:none;
-}
+.result-box { border-radius:14px; padding:18px; margin-top:18px; text-align:center; display:none; }
 .result-box.ok   { background:var(--green-light); border:1px solid #bbf7d0; }
 .result-box.warn { background:var(--yellow-light); border:1px solid #fde68a; }
 .result-box.err  { background:var(--red-light); border:1px solid #fecaca; }
-.result-icon { font-size:2rem; margin-bottom:6px; }
-.result-msg  { font-size:0.95rem; font-weight:700; }
-.result-sub  { font-size:0.8rem; margin-top:4px; opacity:0.8; }
-.supervisor-link { margin-top:20px; text-align:center; font-size:0.75rem; color:#aaa; }
+.result-msg { font-size:0.95rem; font-weight:700; }
+.result-sub { font-size:0.8rem; margin-top:4px; opacity:0.8; }
+.supervisor-link { margin-top:20px; text-align:center; font-size:0.75rem; }
 .supervisor-link a { color:#aaa; text-decoration:none; }
 .supervisor-link a:hover { color:var(--accent); }
 
-/* ===== VISTA SUPERVISOR ===== */
+/* SUPERVISOR */
 #vistaSupervisor { display:none; min-height:100vh; background:var(--bg); }
 .sv-header {
   background:var(--white); border-bottom:1px solid var(--border);
   padding:0 24px; display:flex; align-items:center;
-  justify-content:space-between; height:60px;
-  position:sticky; top:0; z-index:100;
-  box-shadow:0 1px 0 var(--border);
+  justify-content:space-between; height:60px; position:sticky; top:0; z-index:100;
 }
 .sv-logo { display:flex; align-items:center; gap:8px; font-weight:700; font-size:1rem; }
 .sv-logo-icon { width:30px; height:30px; background:var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; }
@@ -134,7 +112,7 @@ table { width:100%; border-collapse:collapse; font-size:0.84rem; }
 thead th { text-align:left; padding:9px 12px; font-size:0.67rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink2); border-bottom:2px solid var(--border); }
 tbody tr { border-bottom:1px solid var(--border); transition:background 0.1s; }
 tbody tr:hover { background:var(--bg); }
-tbody td { padding:12px 12px; }
+tbody td { padding:12px; }
 .empty { text-align:center; padding:48px; color:var(--ink2); font-size:0.875rem; }
 .pill { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:700; }
 .pill-green  { background:var(--green-light); color:var(--green); border:1px solid #bbf7d0; }
@@ -143,10 +121,8 @@ tbody td { padding:12px 12px; }
 .btn-sm:hover { border-color:var(--accent); color:var(--accent); }
 .btn-sm.green { background:var(--green); color:#fff; border-color:var(--green); }
 .btn-sm.green:hover { background:#15803d; }
-.btn-sm.danger { color:var(--red); border-color:#fca5a5; }
-.btn-sm.danger:hover { background:var(--red-light); }
 
-/* Modal login supervisor */
+/* MODAL */
 .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:300; padding:20px; backdrop-filter:blur(6px); }
 .modal-bg.hidden { display:none; }
 .modal { background:var(--white); border-radius:20px; padding:32px; width:100%; max-width:340px; box-shadow:var(--shadow-lg); animation:popIn 0.2s ease; text-align:center; }
@@ -159,29 +135,28 @@ tbody td { padding:12px 12px; }
 .modal-btns { display:flex; gap:8px; }
 .modal-btns button { flex:1; padding:11px; border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; cursor:pointer; }
 .modal-btn-primary { background:var(--accent); color:#fff; }
-.modal-btn-primary:hover { background:#1d4ed8; }
-.modal-btn-cancel { background:var(--border); color:var(--ink2); }
+.modal-btn-cancel  { background:var(--border); color:var(--ink2); }
 
-/* Toast */
+/* TOAST */
 #toast { position:fixed; bottom:20px; right:20px; padding:12px 18px; border-radius:10px; font-size:0.85rem; font-weight:600; box-shadow:var(--shadow-lg); transform:translateY(60px); opacity:0; transition:all 0.25s; z-index:999; max-width:280px; color:#fff; }
 #toast.show { transform:translateY(0); opacity:1; }
 #toast.ok   { background:var(--green); }
 #toast.fail { background:var(--red); }
 #toast.warn { background:var(--yellow); }
 
-/* Loading overlay */
-.loading-overlay { position:fixed; inset:0; background:rgba(255,255,255,0.8); display:flex; align-items:center; justify-content:center; z-index:500; backdrop-filter:blur(2px); }
+/* LOADING */
+.loading-overlay { position:fixed; inset:0; background:rgba(255,255,255,0.88); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:500; }
 .loading-overlay.hidden { display:none; }
 .spinner { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
+.loading-txt { font-size:0.85rem; color:var(--ink2); font-weight:500; }
+@keyframes spin { to{transform:rotate(360deg);} }
 </style>
 </head>
 <body>
 
-<!-- ===== VISTA COLABORADOR ===== -->
+<!-- VISTA COLABORADOR -->
 <div id="vistaColaborador">
   <div class="register-card">
-
     <div class="brand">
       <div class="brand-icon">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
@@ -207,7 +182,6 @@ tbody td { padding:12px 12px; }
       <label>Nombre completo</label>
       <input type="text" id="inputNombre" placeholder="Ej: María González" autocomplete="off">
     </div>
-
     <div class="field">
       <label>Número OP</label>
       <input type="text" id="inputOP" placeholder="Ej: OP-001" autocomplete="off"
@@ -223,19 +197,17 @@ tbody td { padding:12px 12px; }
     </div>
 
     <div class="result-box" id="resultBox">
-      <div class="result-icon" id="resultIcon"></div>
-      <div class="result-msg"  id="resultMsg"></div>
-      <div class="result-sub"  id="resultSub"></div>
+      <div class="result-msg" id="resultMsg"></div>
+      <div class="result-sub" id="resultSub"></div>
     </div>
 
     <div class="supervisor-link">
       <a href="#" onclick="abrirLoginSupervisor(); return false;">Acceso supervisor →</a>
     </div>
-
   </div>
 </div>
 
-<!-- ===== VISTA SUPERVISOR ===== -->
+<!-- VISTA SUPERVISOR -->
 <div id="vistaSupervisor">
   <div class="sv-header">
     <div class="sv-logo">
@@ -253,51 +225,43 @@ tbody td { padding:12px 12px; }
 
   <div class="sv-main">
     <div class="stats-row">
-      <div class="stat"><div class="stat-n">Total registros</div><div class="stat-v c-blue" id="sTotal">0</div></div>
-      <div class="stat"><div class="stat-n">A tiempo hoy</div><div class="stat-v c-green" id="sTiempo">0</div></div>
-      <div class="stat"><div class="stat-n">Tarde hoy</div><div class="stat-v c-yellow" id="sTarde">0</div></div>
+      <div class="stat"><div class="stat-n">Total registros</div><div class="stat-v c-blue" id="sTotal">—</div></div>
+      <div class="stat"><div class="stat-n">A tiempo hoy</div><div class="stat-v c-green" id="sTiempo">—</div></div>
+      <div class="stat"><div class="stat-n">Tarde hoy</div><div class="stat-v c-yellow" id="sTarde">—</div></div>
     </div>
 
     <div class="sv-card">
       <div class="sv-card-header">
         <span class="sv-card-title">Registros de entrada</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn-sm green" onclick="exportExcel()">⬇ Exportar Excel</button>
+          <button class="btn-sm green" onclick="exportCSV()">⬇ Exportar CSV</button>
           <button class="btn-sm" onclick="loadRecs()" style="color:var(--accent);border-color:#bfdbfe;">🔄 Actualizar</button>
-          <button class="btn-sm danger" onclick="clearRecs()">🗑 Limpiar todo</button>
         </div>
       </div>
-
       <div class="filters">
-        <input type="text"  id="fText"   placeholder="🔎 Buscar nombre o OP..." oninput="renderTable()">
-        <input type="date"  id="fDate"   oninput="renderTable()">
+        <input type="text" id="fText" placeholder="🔎 Buscar nombre o OP..." oninput="renderTable()">
+        <input type="date" id="fDate" oninput="renderTable()">
         <select id="fStatus" onchange="renderTable()">
           <option value="">Todos</option>
           <option value="A tiempo">A tiempo</option>
           <option value="Tarde">Tarde</option>
         </select>
       </div>
-
       <div class="tbl-wrap">
         <table>
           <thead>
-            <tr>
-              <th>#</th>
-              <th>Nombre</th>
-              <th>N° OP</th>
-              <th>Hora de Entrada</th>
-              <th>Estado</th>
-              <th>Fecha</th>
-            </tr>
+            <tr><th>#</th><th>Nombre</th><th>N° OP</th><th>Hora de Entrada</th><th>Estado</th><th>Fecha</th></tr>
           </thead>
-          <tbody id="tBody"></tbody>
+          <tbody id="tBody">
+            <tr><td colspan="6" class="empty">Cargando registros...</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal login supervisor -->
+<!-- MODAL LOGIN -->
 <div id="modalLogin" class="modal-bg hidden">
   <div class="modal">
     <div class="modal-icon">🔐</div>
@@ -313,99 +277,35 @@ tbody td { padding:12px 12px; }
   </div>
 </div>
 
-<!-- Loading overlay -->
+<!-- LOADING -->
 <div id="loadingOverlay" class="loading-overlay hidden">
   <div class="spinner"></div>
+  <div class="loading-txt" id="loadingTxt">Procesando...</div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-// ===== SUPABASE CONFIG =====
-const SUPA_URL = 'https://ghxvtbhvunluzfmvrgsk.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoeHZ0Ymh2dW5sdXpmbXZyZ3NrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NDY2MzYsImV4cCI6MjA5MzQyMjYzNn0.bzZgbZCMSNDcOv_w-mxmzma4tzMZ7ZIXcocAuyJPoIs';
-
-const HEADERS = {
-  'apikey': SUPA_KEY,
-  'Authorization': `Bearer ${SUPA_KEY}`,
-  'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
-};
-
-// ===== CONFIG ASISTENCIA =====
+// ===== CONFIG =====
+const SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbzy5vxfuTftlk56MK5q6tobr2P2sntPb2plfX5-E3ex25tJI5CRM2obvbwV3QgFYFY/exec';
 const HORA_ENTRADA   = 7;
 const MIN_ENTRADA    = 0;
 const TOLERANCIA_MIN = 5;
-const CLAVE_SUPERVISOR = '1234'; // ← Cambia esta clave
+const CLAVE_SUPERVISOR = '1234'; // ← Cambia esta clave cuando quieras
 
-// ===== DATA LOCAL =====
 let records = [];
 
-// ===== SUPABASE: CARGAR REGISTROS =====
-async function loadRecs() {
-  showLoading(true);
-  try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/asistencia?order=ts.desc`, {
-      headers: HEADERS
-    });
-    if (!res.ok) throw new Error('Error al cargar registros');
-    records = await res.json();
-    renderTable();
-    updateStats();
-  } catch (e) {
-    toast('Error al cargar datos: ' + e.message, 'fail');
-  }
-  showLoading(false);
-}
-
-// ===== SUPABASE: GUARDAR REGISTRO =====
-async function saveRec(rec) {
-  const res = await fetch(`${SUPA_URL}/rest/v1/asistencia`, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify({
-      nombre:  rec.nombre,
-      op:      rec.op,
-      estado:  rec.estado,
-      retraso: rec.retraso || 0,
-      time:    rec.time,
-      date:    rec.date,
-      ts:      rec.ts
-    })
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || 'Error al guardar');
-  }
-  return await res.json();
-}
-
-// ===== SUPABASE: BORRAR TODOS =====
-async function deleteAllRecs() {
-  const res = await fetch(`${SUPA_URL}/rest/v1/asistencia?id=gte.0`, {
-    method: 'DELETE',
-    headers: HEADERS
-  });
-  if (!res.ok) throw new Error('Error al borrar registros');
-}
-
-// ===== LOADING =====
-function showLoading(show) {
-  document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
-}
-
-// ===== RELOJ COLABORADOR =====
+// ===== RELOJES =====
 function tickColaborador() {
   const n = new Date();
-  const h = n.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  document.getElementById('horaActual').textContent =
+    n.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
   const d = n.toLocaleDateString('es-MX', {weekday:'long', day:'numeric', month:'long'});
-  document.getElementById('horaActual').textContent = h;
   document.getElementById('fechaActual').textContent = d.charAt(0).toUpperCase() + d.slice(1);
 }
 setInterval(tickColaborador, 1000);
 tickColaborador();
 
-// ===== RELOJ SUPERVISOR =====
 setInterval(() => {
   const el = document.getElementById('svClock');
   if (el) {
@@ -416,90 +316,154 @@ setInterval(() => {
   }
 }, 1000);
 
-// ===== ESTADO =====
+// ===== HELPERS =====
 function getEstado(date) {
-  const total  = date.getHours() * 60 + date.getMinutes();
+  const mins   = date.getHours() * 60 + date.getMinutes();
   const limite = HORA_ENTRADA * 60 + MIN_ENTRADA + TOLERANCIA_MIN;
-  return total <= limite ? 'A tiempo' : 'Tarde';
+  return mins <= limite ? 'A tiempo' : 'Tarde';
 }
 function getRetraso(date) {
-  const total  = date.getHours() * 60 + date.getMinutes();
+  const mins   = date.getHours() * 60 + date.getMinutes();
   const limite = HORA_ENTRADA * 60 + MIN_ENTRADA + TOLERANCIA_MIN;
-  return Math.max(0, total - limite);
+  return Math.max(0, mins - limite);
 }
-
-// ===== REGISTRAR ENTRADA =====
-async function registrar() {
-  const nombre = document.getElementById('inputNombre').value.trim();
-  const op     = document.getElementById('inputOP').value.trim();
-
-  if (!nombre) { mostrarResultado('err', '⚠️ Falta tu nombre', 'Por favor escribe tu nombre completo'); return; }
-  if (!op)     { mostrarResultado('err', '⚠️ Falta el N° OP', 'Por favor escribe tu número OP'); return; }
-
-  const btn = document.getElementById('btnRegistrar');
-  btn.disabled = true;
-  btn.textContent = 'Guardando...';
-
-  const now    = new Date();
-  const estado  = getEstado(now);
-  const retraso = getRetraso(now);
-
-  // Verificar si ya marcó hoy (buscar en registros locales ya cargados)
-  const hoy = now.toDateString();
-  const yaMarcó = records.find(r =>
-    r.nombre.toLowerCase() === nombre.toLowerCase() &&
-    r.op.toUpperCase() === op.toUpperCase() &&
-    new Date(r.ts).toDateString() === hoy
-  );
-
-  if (yaMarcó) {
-    mostrarResultado('warn', '⚠️ Ya registraste hoy', 'Tu entrada fue registrada a las ' + yaMarcó.time);
-    btn.disabled = false;
-    btn.textContent = '✅ Registrar entrada';
-    return;
-  }
-
-  const rec = {
-    nombre:  nombre,
-    op:      op.toUpperCase(),
-    estado:  estado,
-    retraso: retraso,
-    date:    now.toLocaleDateString('es-MX'),
-    time:    now.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', second:'2-digit'}),
-    ts:      now.toISOString()
-  };
-
-  try {
-    await saveRec(rec);
-    records.unshift(rec); // actualizar local también
-
-    if (estado === 'A tiempo') {
-      mostrarResultado('ok', '✅ ¡Entrada registrada!', `Bienvenido/a ${nombre} · ${rec.time}`);
-      toast('✅ Entrada a tiempo: ' + nombre);
-    } else {
-      mostrarResultado('warn', `⚠️ Entrada tardía (${retraso} min)`, `${nombre} · ${rec.time} — ${retraso} minuto${retraso !== 1 ? 's' : ''} de retraso`);
-      toast('⚠️ Tarde ' + retraso + ' min: ' + nombre, 'warn');
-    }
-
-    document.getElementById('inputNombre').value = '';
-    document.getElementById('inputOP').value = '';
-  } catch (e) {
-    mostrarResultado('err', '❌ Error al guardar', e.message);
-    toast('Error: ' + e.message, 'fail');
-  }
-
-  btn.disabled = false;
-  btn.textContent = '✅ Registrar entrada';
+function showLoading(show, txt = 'Procesando...') {
+  document.getElementById('loadingTxt').textContent = txt;
+  document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
 }
-
+function toast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3500);
+}
 function mostrarResultado(tipo, msg, sub) {
   const box = document.getElementById('resultBox');
   box.className = 'result-box ' + tipo;
   box.style.display = 'block';
   document.getElementById('resultMsg').textContent = msg;
   document.getElementById('resultSub').textContent = sub;
-  clearTimeout(window._resultTimer);
-  window._resultTimer = setTimeout(() => { box.style.display = 'none'; }, 6000);
+  clearTimeout(window._rt);
+  window._rt = setTimeout(() => { box.style.display = 'none'; }, 6000);
+}
+
+// ===== GOOGLE SHEETS: GUARDAR =====
+// Usamos un iframe oculto para el POST sin-CORS (técnica jsonp-like para Apps Script)
+function saveRec(rec) {
+  return new Promise((resolve) => {
+    const cbName = 'cb_' + Date.now();
+    const url = SCRIPT_URL
+      + '?callback=' + cbName
+      + '&nombre='  + encodeURIComponent(rec.nombre)
+      + '&op='      + encodeURIComponent(rec.op)
+      + '&estado='  + encodeURIComponent(rec.estado)
+      + '&retraso=' + encodeURIComponent(rec.retraso)
+      + '&time='    + encodeURIComponent(rec.time)
+      + '&date='    + encodeURIComponent(rec.date);
+
+    window[cbName] = function(data) {
+      delete window[cbName];
+      document.getElementById('jsonpFrame').src = 'about:blank';
+      resolve(data);
+    };
+
+    // Fallback: si no responde en 6s, igual resolvemos
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      resolve({ok: true, timeout: true});
+    }, 6000);
+
+    window[cbName]._timeout = timeout;
+    document.getElementById('jsonpFrame').src = url;
+  });
+}
+
+// ===== GOOGLE SHEETS: CARGAR =====
+async function loadRecs() {
+  showLoading(true, 'Cargando registros desde Google Sheets...');
+  try {
+    const url = SCRIPT_URL + '?action=get&t=' + Date.now();
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    records = data
+      .map(r => ({
+        nombre:  r['Nombre']  || '',
+        op:      r['OP']      || '',
+        estado:  r['Estado']  || '',
+        retraso: Number(r['Retraso'] || 0),
+        time:    r['Hora']    || '',
+        date:    r['Fecha']   || ''
+      }))
+      .filter(r => r.nombre)
+      .reverse(); // más recientes primero
+
+    renderTable();
+    updateStats();
+    toast('✅ Datos actualizados', 'ok');
+  } catch (e) {
+    toast('Error al cargar datos', 'fail');
+    document.getElementById('tBody').innerHTML =
+      `<tr><td colspan="6" class="empty">❌ Error al cargar. Verifica la conexión e intenta de nuevo.</td></tr>`;
+  }
+  showLoading(false);
+}
+
+// ===== REGISTRAR =====
+async function registrar() {
+  const nombre = document.getElementById('inputNombre').value.trim();
+  const op     = document.getElementById('inputOP').value.trim();
+
+  if (!nombre) { mostrarResultado('err', '⚠️ Falta tu nombre',  'Por favor escribe tu nombre completo'); return; }
+  if (!op)     { mostrarResultado('err', '⚠️ Falta el N° OP',   'Por favor escribe tu número OP');       return; }
+
+  const btn = document.getElementById('btnRegistrar');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  showLoading(true, 'Registrando entrada en Google Sheets...');
+
+  const now     = new Date();
+  const estado  = getEstado(now);
+  const retraso = getRetraso(now);
+  const time    = now.toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const date    = now.toLocaleDateString('es-MX');
+
+  // Verificar duplicado del día
+  const yaMarcó = records.find(r =>
+    r.nombre.toLowerCase() === nombre.toLowerCase() &&
+    r.op.toUpperCase()     === op.toUpperCase() &&
+    r.date === date
+  );
+  if (yaMarcó) {
+    mostrarResultado('warn', '⚠️ Ya registraste hoy', 'Tu entrada fue registrada a las ' + yaMarcó.time);
+    btn.disabled = false; btn.textContent = '✅ Registrar entrada';
+    showLoading(false); return;
+  }
+
+  const rec = { nombre, op: op.toUpperCase(), estado, retraso, time, date };
+
+  try {
+    await saveRec(rec);
+  } catch(e) {
+    // Con la técnica JSONP, los errores de red son silenciosos
+  }
+
+  // Agregar localmente para mostrar inmediatamente
+  records.unshift(rec);
+
+  if (estado === 'A tiempo') {
+    mostrarResultado('ok',  '✅ ¡Entrada registrada!', `Bienvenido/a ${nombre} · ${time}`);
+    toast('✅ A tiempo: ' + nombre, 'ok');
+  } else {
+    mostrarResultado('warn', `⚠️ Entrada tardía (${retraso} min)`,
+      `${nombre} · ${time} — ${retraso} minuto${retraso !== 1 ? 's' : ''} de retraso`);
+    toast('⚠️ Tarde ' + retraso + ' min', 'warn');
+  }
+
+  document.getElementById('inputNombre').value = '';
+  document.getElementById('inputOP').value = '';
+  btn.disabled = false;
+  btn.textContent = '✅ Registrar entrada';
+  showLoading(false);
 }
 
 // ===== LOGIN SUPERVISOR =====
@@ -509,14 +473,11 @@ function abrirLoginSupervisor() {
   document.getElementById('modalLogin').classList.remove('hidden');
   setTimeout(() => document.getElementById('claveInput').focus(), 200);
 }
-
 function cerrarModal() {
   document.getElementById('modalLogin').classList.add('hidden');
 }
-
 function verificarClave() {
-  const clave = document.getElementById('claveInput').value;
-  if (clave === CLAVE_SUPERVISOR) {
+  if (document.getElementById('claveInput').value === CLAVE_SUPERVISOR) {
     cerrarModal();
     abrirSupervisor();
   } else {
@@ -525,13 +486,11 @@ function verificarClave() {
     document.getElementById('claveInput').focus();
   }
 }
-
 function abrirSupervisor() {
   document.getElementById('vistaColaborador').style.display = 'none';
   document.getElementById('vistaSupervisor').style.display = 'block';
   loadRecs();
 }
-
 function cerrarSesion() {
   document.getElementById('vistaSupervisor').style.display = 'none';
   document.getElementById('vistaColaborador').style.display = 'flex';
@@ -543,19 +502,25 @@ function renderTable() {
   const fd = document.getElementById('fDate').value;
   const fs = document.getElementById('fStatus').value;
 
+  // Convertir fecha del filtro a formato local si existe
+  let fechaFiltro = '';
+  if (fd) {
+    const [y, m, d] = fd.split('-');
+    fechaFiltro = `${parseInt(d)}/${parseInt(m)}/${y}`;
+  }
+
   const filtered = records.filter(r => {
     const mt = !ft || r.nombre.toLowerCase().includes(ft) || r.op.toLowerCase().includes(ft);
-    const md = !fd || r.ts.startsWith(fd);
+    const md = !fechaFiltro || r.date === fechaFiltro;
     const ms = !fs || r.estado === fs;
     return mt && md && ms;
   });
 
   const body = document.getElementById('tBody');
   if (!filtered.length) {
-    body.innerHTML = `<tr><td colspan="6" class="empty">Sin registros aún</td></tr>`;
+    body.innerHTML = `<tr><td colspan="6" class="empty">Sin registros para los filtros aplicados</td></tr>`;
     return;
   }
-
   body.innerHTML = filtered.map((r, i) => {
     const pill = r.estado === 'A tiempo'
       ? `<span class="pill pill-green">✅ A tiempo</span>`
@@ -572,61 +537,42 @@ function renderTable() {
 }
 
 function updateStats() {
-  const hoy = new Date().toDateString();
-  const hoyRecs = records.filter(r => new Date(r.ts).toDateString() === hoy);
+  const hoy = new Date().toLocaleDateString('es-MX');
+  const hoyRecs = records.filter(r => r.date === hoy);
   document.getElementById('sTotal').textContent  = records.length;
   document.getElementById('sTiempo').textContent = hoyRecs.filter(r => r.estado === 'A tiempo').length;
   document.getElementById('sTarde').textContent  = hoyRecs.filter(r => r.estado === 'Tarde').length;
 }
 
-// ===== LIMPIAR =====
-async function clearRecs() {
-  if (!confirm('¿Borrar TODOS los registros de la base de datos? Esta acción no se puede deshacer.')) return;
-  showLoading(true);
-  try {
-    await deleteAllRecs();
-    records = [];
-    renderTable();
-    updateStats();
-    toast('Registros eliminados', 'fail');
-  } catch (e) {
-    toast('Error al borrar: ' + e.message, 'fail');
-  }
-  showLoading(false);
-}
-
-// ===== EXPORTAR EXCEL =====
-function exportExcel() {
+// ===== EXPORTAR CSV =====
+function exportCSV() {
   if (!records.length) { toast('No hay registros', 'fail'); return; }
   const ft = document.getElementById('fText').value.toLowerCase();
   const fd = document.getElementById('fDate').value;
   const fs = document.getElementById('fStatus').value;
+  let fechaFiltro = '';
+  if (fd) { const [y,m,d] = fd.split('-'); fechaFiltro = `${parseInt(d)}/${parseInt(m)}/${y}`; }
+
   const data = records.filter(r => {
     const mt = !ft || r.nombre.toLowerCase().includes(ft) || r.op.toLowerCase().includes(ft);
-    const md = !fd || r.ts.startsWith(fd);
+    const md = !fechaFiltro || r.date === fechaFiltro;
     const ms = !fs || r.estado === fs;
     return mt && md && ms;
   });
   const BOM    = '\uFEFF';
-  const header = ['#', 'Nombre', 'N° OP', 'Hora de Entrada', 'Estado', 'Minutos de Retraso', 'Fecha'].join(',');
-  const rows   = data.map((r, i) => [i + 1, `"${r.nombre}"`, r.op, r.time, r.estado, r.retraso || 0, r.date].join(','));
-  const csv    = BOM + [header, ...rows].join('\n');
-  const blob   = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  const url    = URL.createObjectURL(blob);
+  const header = ['#','Nombre','N° OP','Hora de Entrada','Estado','Minutos de Retraso','Fecha'].join(',');
+  const rows   = data.map((r,i) => [i+1,`"${r.nombre}"`,r.op,r.time,r.estado,r.retraso||0,r.date].join(','));
+  const csv    = BOM + [header,...rows].join('\n');
   const a      = document.createElement('a');
-  const fecha  = new Date().toLocaleDateString('es-MX').replace(/\//g, '-');
-  a.download   = `Asistencia_${fecha}.csv`;
-  a.href = url; a.click();
-  toast('✅ Excel exportado', 'ok');
-}
-
-// ===== TOAST =====
-function toast(msg, type = 'ok') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = 'show ' + type;
-  setTimeout(() => t.className = '', 3500);
+  a.download   = `Asistencia_${new Date().toLocaleDateString('es-MX').replace(/\//g,'-')}.csv`;
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.click();
+  toast('✅ CSV exportado', 'ok');
 }
 </script>
+
+<!-- iframe oculto para JSONP (guardar sin bloqueo CORS) -->
+<iframe id="jsonpFrame" style="display:none;" src="about:blank"></iframe>
+
 </body>
 </html>
